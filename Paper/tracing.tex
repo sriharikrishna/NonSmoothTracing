@@ -1,0 +1,409 @@
+\documentclass{article}
+
+\usepackage{verbatimfiles}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{url}
+\usepackage{multirow}
+\usepackage{fancyhdr}
+\usepackage{relsize}
+
+\usepackage[pdftex,usenames]{color}
+\usepackage[pdftex]{graphicx}  
+\DeclareGraphicsExtensions{.pdf}  
+\usepackage[pdftex,bookmarks=true,bookmarksnumbered=true,hypertexnames=false,breaklinks=true]{hyperref}
+\hypersetup{
+  pdfauthor = {Jean Utke},
+  pdftitle = {Tracing Nonsmooth Model Behavior},
+  pdfsubject = {},
+  pdfkeywords = {OpenAD, Fortran, automatic differentiation, algorithms},
+  pdfcreator = {LaTeX with hyperref package},
+  pdfproducer = {dvips + ps2pdf}sh	
+}
+\pdfadjustspacing=1
+
+% make paragraphs show up in the bookmarks
+\setcounter{secnumdepth}{6}
+\setcounter{tocdepth}{6}
+
+
+% page layout
+% letter size
+\paperheight     11in
+\paperwidth      8.5in
+% print area
+\leftmargin      0in
+\rightmargin     0in
+\textheight      9.5in
+\textwidth       7.0in
+\topmargin      -0.5in
+%\headheight      0in
+%\headsep         0in
+\oddsidemargin   0in
+\evensidemargin -0.5in
+
+
+\fboxsep.5mm
+
+% names and CS terms
+
+% math
+\newcommand{\R}{I\!\!R}
+\newcommand{\N}{I\!\!N	}
+\newcommand{\bmC}{\mbox{\bf\em C}}
+\newcommand{\bmf}{\mbox{\bf\em f}}
+\newcommand{\bmfp}{\mbox{\bf\em f$\,^\prime\!\!$}}
+\newcommand{\bmg}{\mbox{\bf\em g}}
+\newcommand{\bmI}{\mbox{\bf\em I}}
+\newcommand{\bmJ}{\mbox{\bf\em J}}
+\newcommand{\bmp}{\mbox{\bf\em p}}
+\newcommand{\bmq}{\mbox{\bf\em q}}
+\newcommand{\bmS}{\mbox{\bf\em S}}
+\newcommand{\bms}{\mbox{\bf\em s}}
+\newcommand{\bmt}{\mbox{\bf\em t}}
+\newcommand{\bmu}{\mbox{\bf\em u}}
+\newcommand{\bmv}{\mbox{\bf\em v}}
+\newcommand{\bmw}{\mbox{\bf\em w}}
+\newcommand{\bmx}{\mbox{\bf\em x}}
+\newcommand{\bmy}{\mbox{\bf\em y}}
+\newcommand{\bmzero}{\mbox{\bf\em O}}
+
+% environments
+\newcommand{\code}[1]{{\tt{#1}}}
+\newcommand{\refcan}[1]{(C\ref{#1})}
+\newcommand{\refsec}[1]{{Sec.~\ref{#1}}} 
+\newcommand{\refsecBS}[1]{{Section~\ref{#1}}} 
+\newcommand{\reffig}[1]{{Fig.~\ref{#1}}} 
+\newcommand{\reffigBS}[1]{{Figure\ref{#1}}} 
+\newcommand{\reftab}[1]{{Table~\ref{#1}}} 
+\newcommand{\refalg}[1]{{Alg.~\ref{#1}}} 
+\newcommand{\refalgBS}[1]{{Algorithm~{#1}}} 
+\newcommand{\refeqn}[1]{{(\ref{#1})}} 
+\newcommand{\refdef}[1]{{Def.~(\ref{#1})}} 
+
+\title{A tracing facility for Nonsmooth Model Behavior}
+\author{J. Utke}
+\date{ }
+
+\fancyhead[RE]{\leftmark}
+\fancyhead[LE]{}
+\fancyhead[RO]{}
+\fancyhead[LO]{\nouppercase\rightmark}
+\fancyfoot[LO,RE]{Tracing Nonsmooth Model Behavior}
+
+\begin{document}
+\maketitle
+\lstloadlanguages{Fortran,XML}
+\lstset{basicstyle=\footnotesize\tt, 
+	numbers=left, 
+	numberstyle=\scriptsize,
+  	stepnumber=1, 
+	numbersep=10pt, 
+	breaklines=true,
+	resetmargins=false,
+	xleftmargin=6ex,
+	columns=fullflexible}
+% #########################################################################################
+\section{Introduction}
+
+The computation of derivatives in the context of optimization, parameter or state estimation 
+and other uses relies on the assumption that the function computed by the numerical 
+model is in some sense ``smooth''. 
+This is true for the approximation of derivative information with divided differences 
+as well as the application of automatic differentiation (AD). 
+Griewank devotes an entire chapter in \cite{Gri00} 
+to the scenario of applying an AD tool to cases without differentiability. 
+In practice one observes various cases where the derivatives computed by AD are useless 
+because their numerical values grow  beyond reasonable bounds \cite{bischof} or even 
+become NaNs. 
+In the latter case one might have the option to let a suitable compiler generate 
+code to detect floating point exceptions to help locate the origin of the problem.
+The AD  tool ADIFOR \cite{adifor} also has built-in  option to detect 
+such situations by adding checks to the generated code.   
+In the former case when no NaNs are created it is however very difficult to 
+detect what feature of the numerical model causes the derivative values to explode. 
+In the following we introduce a facility to trace the model computation and locate 
+certain programming constructs that have the potential to cause 
+such behavior. We aim at extracting information that is specific to 
+certain locations in the underlying program and also to specific data 
+being computed during the execution of the model.  
+   
+Many numerical models exhibit nonsmooth behavior to reflect the modeled problem, 
+for instance a phase change in the modeled material, because the 
+model has distinct representations for certain subdomains or the nonsmooth effects 
+are an artifact of the numerical methods implemented in the model.
+In either case one needs to be concerned about the validity of the 
+derivative information and attempt to locate the problem and  find a remedy.  
+The situation with the disctinct subdomains is described to illustrate 
+certain aspects of using Adol-C in \cite{adolc} and we 
+replicate it here in \reffig{fig:subdomains}. 
+\begin{figure}
+\includegraphics[height=2.2cm]{nonsmooth1}
+\caption{A nonsmooth model with subdomains}\label{fig:subdomains} 
+\end{figure}
+The model is first evaluated at point P0.  Relative to P0 we distinguish the 
+following cases
+\begin{description}
+\item[P1] we stay in the interior of the same subdomain as P0 
+\item[P2 and P2'] we are in the interior of a different subdomain than P0 is
+\item[P3] we are at a point where the model is continuous but not (Frech\'et) differentiable
+\item[P4] we are at a point where the model is not continuous
+\item[P5] we are at a point where the model is not defined
+\end{description}    
+For Adol-C the most critical question is to determine if a given execution trace 
+recorded for some point P0 may still be used for a different point P' or else 
+into which of the five categories  the point P' falls that would necessitate 
+a re-recording of the execution trace and indicate if the computed derivatives 
+may be valid only in the given direction. Adol-C itself provides only an answer 
+via a return code indicating the category. 
+It is able to do this by comparing the output of tests and certain intrinsics 
+that were recorded in the execution trace with the output these same tests and intrinsics 
+generate at the current evaluation point. 
+Because the execution trace is generated via operator overloading and is designed to 
+minimize the required storage an indication of leaving the current subdomain or computing 
+a value at a point of non-differentiability cannot be related to a particular spot in 
+the underlying program or a particular piece of data. 
+However, the idea is the same that certain programming constructs can
+trigger the assumption that one has left the subdomain in which smooth model behavior 
+can be assumed. 
+These {\em critical} programming constructs can be grouped as follows.
+\begin{description}
+\item[nonsmooth intrinsics] Some of the most obvious cases are \code{max}, \code{min}, and \code{fabs}.
+\item[conditional expressions] The model may compute values in different branches following a test 
+or a loop may have a different iteration count based on a termination test.
+\end{description}
+As done in Adol-C we aim at tracing the model behavior and detect any differences triggered 
+by the programming constructs listed above that might represent nonsmooth model behavior.
+Obviously a tracing facility such as the one proposed here is most useful for 
+numerical models that have 
+\begin{itemize}
+\item a large source code base and 
+\item a relatively long execution time
+\end{itemize}
+such that a manual inspection of the model either by browsing the source code or 
+running a simulation in the debuger to observe certain values is too tedious.
+Clearly such a use also requires some restrictions on the information that is being 
+collected to reduce the amount of tracing data that has to be dealt with.
+
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\subsection{Tracing and Activity Analysis}
+An important concept in AD is that of {\em active} values, that is 
+program data that lies on a dependency path from the subset of inputs $\bmx$ to 
+a subset of outputs $\bmy$. 
+In a source transformation context the activity is determined by a data flow 
+analysis which. Typically the dependence of a given value on $\bmx$ is 
+referred to as being {\em varied} while $\bmy$ depending on 
+a certain value is referred to as that value being {\em usefull}.   
+In general we assume a model of the form 
+\[
+(\bmy,\bmq)=\bmf(\bmx,\bmp): \R^{n\times s}\mapsto \R^{m\times t}
+\]
+The inputs $\bmp$ and the outputs $\bmq$  are assumed to be of no interest 
+for the derivative computation. Consequently any values that only depend on
+$\bmp$ or only affect the $\bmq$ are not ative values and  
+under certain conditions of no interest to the trace we need to compare against. 
+It is important to note that this restriction is specific to the AD context 
+and is the distinguishing factor that separates our  approach  
+from something that might otherwise be accomplished 
+by using, for example, aspect oriented programming techniques. 
+Typical examples for portions of the code that do not involve active values 
+is logic for debugging, logging, timing or I/O.   
+
+Our approach relies on compile time activity analysis to determine the active value set 
+and source transformation to augment the critical programming constructs by 
+routines that generate the trace. 
+Because of conservative assumptions regarding the 
+aliasing of variables there is a certain overestimate of the active value set. 
+The overestimate could in theory be reduced by augmenting the static analysis 
+with run time data. 
+Such runtime augmentation has,  however,  the same principal problem already 
+explained before for the usage of the Adol-C trace. 
+One will always have to check 
+if the runtime data are still valid once the point of evaluation moves. 
+In other words it would be subject to the very same nonsmooth model behavior we are trying to detect.
+
+On the other hand it is clear that the activity  analysis requiring a value 
+to be both varied and usefull can underestimate 
+the values for which tracing may be desired. 
+The example in \reffig{fig:missedThis} illustrates the case of an active value  $a$
+being part of the computation of some value $p$ that itself is not active presumably 
+because it is ``varied'' but not ``usefull''.
+Then $v$ is used in an if-condition that changes the path through the control flow 
+graph for some  subsequent computation of active values.
+\begin{figure}
+\begin{lstlisting}
+v = t + sin(a) 
+if ( v .gt. 0.3 )
+then 
+  a = a * 2
+else
+  a = a * 3
+end if 
+...
+\end{lstlisting}
+\includegraphics[height=2.2cm]{nonsmooth1}
+\caption{A control flow decision depening on a nonactive variable}\label{fig:missedThis} 
+\end{figure}
+Given this scenario one might arrive at various conclusions. 
+
+Rather than tracing critical constructs only for  active values 
+one could devise an extension to the notion of activity using the following 
+definition.\\
+{\em Definition: } A value is called {\em indirectly usefull} 
+if an address computation yielding active values depends on it.\\
+Here we use the term  address computation to cover the typical notion of 
+computing addresses in the program's data segment but also to compute 
+addresses in the programs text segment determining the next instruction. 
+The instruction address computation is already illustrated by \reffig{fig:missedThis}
+An example for the former kind of address computation is given in 
+\reffig{fig:addressComp} where an active value in variable a is used to 
+determine an index i into a lookup table t which then is used in 
+subsequent active computations.
+\begin{figure}
+\begin{lstlisting}
+i = int(a) 
+a = a * t(i)
+\end{lstlisting}
+\includegraphics[height=2.2cm]{nonsmooth1}
+\caption{An address computation into a lookup table impacting the subsequent computation}\label{fig:subdomains} 
+\end{figure}
+Unfortunately the definition of ``indirectly usefull'' cannot be directly used in a 
+data flow analysis engine. 
+
+An alternative would be to consider tracing of critical constructs for all varied values. 
+Clearly, this will increase the generated output significantly by including much 
+of the ancillary model logic (the aforementioned debugging, monitoring etc.) which 
+the activity analysis is aiming to exclude. 
+Incidentally, in Adol-C this approach is implicitly enforced by the compiler. 
+Adol-C uses a specific  
+active type for active values and they may not be used to 
+compute plain floating point values unless one 
+explicitly deactivates the value first. 
+
+Given the difficulty of implementing an analysis to determine indirectly usefull values 
+on the one hand and the large overhead of tracing all varied values we 
+compromise with a limited extension to the notion of active variables by tracing  
+all expressions in control flow constructs and address computations directly involving active values
+but excluding all cases of computing non-active values that use one or more intermediate 
+variables before the actual address computation takes place. 
+While this opens up the possibility to miss some critical constructs 
+it also permits a tighter restriction on what is being traced as a first iteration. 
+Other than the size of the tracing data  there is no problem with abandoning the compromise
+and use just the set of varied values should the first iteration not be able to 
+locate any problems.    
+In \refsec{sec:analysis} we discuss the practical implementation.
+
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\subsection{Growing Derivatives}
+In various practical applications of AD it was observed that particularly in iterative
+models the are cases where the  computed derivatives beyond a certain iteration count 
+start to oscillate and grow out of bounds. 
+This was described for instance in \cite{bischof}. 
+We do not presume any knowledge about origin of the nonsmooth behavior, for instance
+it may well originate with an erroneous implementation of a numerical method. 
+A simple example should illustrate how oscillating derivatives and the growth 
+of the amplitude might be related to switching between smooth subdomains. 
+Consider an iteration internal to the model that computes some physical state 
+on a discretized domain but because of a boundary condition the state value is 
+forced to attain another value. For example one might think of a heating process involving 
+a phase change and the temperature of the material is forced down to a certain ambient 
+value on the boundary of the model domain. 
+In the iterative process one first observes a smooth rise in temperature until the 
+regime that governs the phase change triggers a nonsmooth behavior. 
+The situtation is illustrated in \reffig{growingExample}.
+\begin{figure}
+\begin{lstlisting}
+do while time .lt. timeEnd
+  call computeTemp(T)
+  if (T(border) .gt. fixedBorderTemp + delta)  then 
+    T(border) = fixedBorderTemp 
+  end if
+  time = time + timeStep
+end do  
+\end{lstlisting}
+\includegraphics[height=2.2cm]{nonsmooth2}
+\caption{An iterative model with nonsmooth behavior yields 
+growing derivative values.}\label{fig:growingExample} 
+\end{figure}
+An oscillation of the derivative values can originate for example from 
+switching between two subdomains as depicted in  \reffig{fig:oscillatingExample}.
+\begin{figure}
+do while time .lt. timeEnd
+  if ( a .gt. a\_critical ) 
+  then
+     a=a+update\_for\_f1(a)
+  else 	
+     a=a+update\_for\_f2(a)
+  end if
+  time = time + timeStep
+end do  
+\includegraphics[height=2.2cm]{nonsmooth3}
+\caption{An iterative model with nonsmooth behavior yields 
+oscillating derivative values.}\label{fig:oscillatingExample} 
+\end{figure}
+The solution to fix the model behavior in this simple example is very obvious
+but in complicated numerical models the effect of the updated in combination with 
+switching the model regime in the control flow may not be obvious at all. 
+Using the suggested tracing one would, however, record the switches in 
+the control flow path based on the value of a. 
+Both examples also indicate that one has to consider the  scope in which 
+one wants to compare traces. Here we assume a time stepping scheme 
+outside of the ``core'' model which we trace and this implies a comparison 
+of traces for different time steps.  
+If a model already contains iterations, e.g. if we considered the time stepping 
+loops part of our example models, one will have to narrow the scope to 
+subtraces within the model. 
+h
+% #########################################################################################
+\section{Usage}
+
+% #########################################################################################
+\section{Example}
+
+% #########################################################################################
+\section{Implementation}\label{sec:analysis}
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\subsection{Analysis}\label{sec:analysis}
+  
+      
+
+
+ 
+The tool OpenAD \cite{OpenAD} is the basis for the actual implementation. 
+It uses the activity analysis implemented in the OpenAnalysis \cite{OpenAnalysis} library 
+to obtain the set of active variables. 
+
+ 
+
+
+
+      
+\subsection{Coverage}
+
+% #########################################################################################
+\section*{Acknowledgments}
+Utke was supported by the Mathematical, Information, and
+Computational Sciences Division subprogram of the Office of Advanced
+Scientific Computing Research, Office of Science, U.S. Dept. of Energy under
+Contract DE-AC02-06CH11357.  
+
+\bibliographystyle{plain}
+\bibliography{tracing}
+
+\vfill
+\begin{flushright}
+\scriptsize
+\framebox{\parbox{2.4in}{The submitted manuscript has been created by
+UChicago Argonne, LLC, Operator of Argonne National Laboratory
+("Argonne").  Argonne, a U.S. Department of Energy Office
+of Science laboratory, is operated under Contract No.
+DE-AC02-06CH11357.  The U.S. Government retains for itself, and
+others acting on its behalf, a paid-up, nonexclusive, irrevocable
+worldwide license in said article to reproduce, prepare derivative works,
+distribute copies to the public, and perform publicly and display
+publicly, by or on behalf of the Government.}}
+\normalsize
+\end{flushright}
+
+\end{document}

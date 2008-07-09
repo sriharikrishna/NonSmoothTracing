@@ -1,0 +1,722 @@
+@STRING{jgr     = {J. Geophysical Research}}
+@STRING{jpo     = {J.~Phys.~Oceanogr.}}
+
+
+@Book{            ASU86,
+  author        = {A.~Aho and R.~Sethi and J.~Ullman},
+  title         = {Compilers. {P}rinciples, Techniques, and Tools},
+  publisher     = {Addison-Wesley},
+  year          = {1986},
+  address       = {Reading, MA},
+}
+
+@Book{            Gri00,
+  author        = {A.~Griewank},
+  title         = {Evaluating Derivatives. Principles and Techniques of Algorithmic Differentiation},
+  publisher     = {SIAM},
+  year          = {2000},
+  address       = {Philadelphia},
+  series        = {Frontiers in Applied Mathematics},
+  number        = {19}
+}
+
+@Proceedings{     CG91,
+  title         = {Automatic Differentiation: Theory, Implementation, and Application},
+  year          = {1991},
+  editor        = {G.~Corliss and A.~Griewank},
+  series        = {Proceedings Series},
+  volume        = {},
+  publisher     = {SIAM},
+  address       = {Philadelphia}
+}
+
+@Proceedings{     BBCG96,
+  title         = {Computational Differentiation: Techniques, Applications, and Tools},
+  year          = {1996},
+  editor        = {M.~Berz and C.~Bischof and G.~Corliss and A.~Griewank},
+  series        = {Proceedings Series},
+  volume        = {},
+  publisher     = {SIAM},
+  address       = {Philadelphia}
+}
+
+@article{         ElimTechMP, 
+  author        = {U. Naumann}, 
+  title         = {Optimal Accumulation of {J}acobian Matrices by Elimination Methods on the dual computational graph},
+  journal       = {Math. Prog.},
+  year          = {2003},
+  note          = {Published online at \url{http://www.springerlink.com}}
+}
+
+
+@Proceedings{     CFG+01,
+  title         = {Automatic Differentiation of Algorithms -- From Simulation to Optimization},
+  year          = {2002},
+  editor        = {G.~Corliss and C.~Faure and A.~Griewank and L.~Hascoet and U.~Naumann},
+  publisher     = {Springer},
+  address       = {New York}
+}
+
+@Proceedings{     BCH+06,
+  title         = {Automatic Differentiation: Applications, Theory and Implementations},
+  year          = {2006},
+  editor        = {M. B\"ucker and G.~Corliss and P.~Hovland and U.~Naumann and B.~Norris},
+  series        = {LNCS},
+  volume        = {50},
+  publisher     = {Springer},
+  address       = {New York}
+}
+
+@InProceedings{   GrRe91,
+  author        = {A.~Griewank and S.~Reese},
+  title         = {On the Calculation of {J}acobian Matrices by the {M}arkovitz Rule},
+  booktitle     = {\cite{CG91}},
+  pages         = {126--135},
+  year          = {1991}
+}
+
+@TechReport{      SEUpreacc, 
+  author        = {U. Naumann}, 
+  title         = {Optimal Pivoting in Tangent-linear and Adjoint Systems of Nonlinear Equations}, 
+  institution   = {Argonne National Laboratory}, 
+  year          = {2003}, 
+  number        = {ANL-MCS/P944-0402}, 
+  type          = {Preprint}, 
+  note          = {Under review for Math. Prog.} 
+}
+
+@TechReport{      HoNo01,
+  title         = {Users' Guide to {ADIC} 1.1},
+  author        = {P. Hovland and B. Norris},
+  institution   = {Mathematical and Computer Science Division, Argonne National Laboratory},
+  year          = {2001},
+  type          = {Technical Memorandum},
+  number        = {ANL/MCS-TM-225}
+}
+
+@InProceedings{   HNN02,
+  title         = {An {XML}-based platform for semantic transformation of numerical programs},
+  author        = {P. Hovland and U. Naumann and B. Norris},
+  booktitle     = {Software Engineering and Applications (SEA 2002)},
+  editor        = {M.~Hamza},
+  pages         = {530--538},
+  year          = {2002},
+  address       = {Anaheim,CA},
+  publisher     = {ACTA Press}
+}
+
+@Book{            DesignPatterns,
+  author        = {E. Gamma and R. Helm and R. Johnson and J. Vlissides},
+  title         = {Design Patterns},
+  publisher     = {Addison-Wesley},
+  year          = {1995},
+  address       = {Reading, MA}
+}
+
+@INCOLLECTION {   CDB96,
+  author        = {B. Christianson and L. Dixon and S. Brown},
+  booktitle     = {\cite{BBCG96}},
+  year          = {1996},
+  title         = {Sharing Storage Using Dirty Vectors},
+  pages         = {107--115},
+  publisher     = {SIAM},
+  address       = {Philadelphia, PA}
+}
+
+@INCOLLECTION {   WaGr01,
+  author        = {A. Walther and A. Griewank},
+  year          = {2001},
+  title         = {New Results on Program Reversals},
+  booktitle     = {\cite{CFG+01}},
+  pages         = {237--243},
+  publisher     = {Springer},
+  address       = {New York}
+}
+
+@ARTICLE {        Gri92,
+  author        = {A. Griewank},
+  title         = {Achieving logarithmic growth of temporal and spatial complexity in reverse automatic differentiation},
+  journal       = {Optimization Methods and Software},
+  volume        = {1},
+  number        = {1},
+  year          = {1992},
+  pages         = {35--54}
+}
+
+@InProceedings{   SAGA,
+  title         = {Simulated Annealing for Optimal Pivot Selection in {J}acobian Accumulation},
+  author        = {U. Naumann and P. Gottschling},
+  booktitle     = {Stochastic Algorithms: Foundations and Applications},
+  editor        = {A. Albrecht and K. Steinh\"ofel},
+  series        = {LNCS},
+  publisher     = {Springer},
+  volume        = {2827},
+  pages         = {83--97},
+  year          = {2003}
+}
+
+@InProceedings{   AGN03,
+  title         = {Markowitz-type heuristics for computing {J}acobian Matrices efficiently},
+  author        = {A. Albrecht and P. Gottschling and U. Naumann},
+  booktitle     = {Computational Science -- ICCS 2003},
+  series        = {LNCS},
+  publisher     = {Springer},
+  volume        = {2658},
+  pages         = {575--584},
+  year          = {2003},
+}
+
+@TechReport{      NaRi03,
+  title         = {A Differentiation-enabled Fortran 95 Compiler},
+  author        = {U. Naumann and J. Riehme},
+  institution   = {Argonne National Laboratory},
+  year          = {2003},
+  number        = {ANL-MCS/P1090-0903},
+  type          = {Preprint},
+  note          = {Submitted to ACM TOMS}
+}
+
+@inproceedings {  NaHe03,
+  author        = {U. Naumann and P. Heimbach},
+  title         = {Coupling tangent-linear and adjoint models},
+  booktitle     = {Computational Science and Its Applications -- ICCSA 2003},
+  year          = {2003},
+  editor        = {V. Kumar and M. L. Gavrilova and C. J. K. Tan and P. {L'Ecuyer}},
+  volume        = {2668},
+  series        = {LNCS},
+  publisher     = {Springer},
+  pages         = {95--104},
+  address       = {Berlin}        
+}
+
+@Article{         mars-eta:97a,
+  author        = {J. Marshall and C. Hill and L. Perelman and A. Adcroft},
+  year          = {1997},
+  title         = {Hydrostatic, quasi-hydrostatic and nonhydrostatic ocean modeling},
+  journal       = jgr,
+  volume        = {102, C3},
+  pages         = {5,733--5,752},
+}
+        
+@Article{         mars-eta:97b,
+  author        = {J. Marshall and A. Adcroft and C. Hill and L. Perelman and C. Heisey},
+  year          = {1997},
+  title         = {Hydrostatic, quasi-hydrostatic and nonhydrostatic ocean modeling},
+  journal       = jgr,
+  volume        = {102, C3},
+  pages         = {5,753--5,766},
+}
+
+@Article{         maro-eta:99,
+  author        = {J. Marotzke and R.~Giering and K.~Zhang and D. Stammer and C. Hill and T. Lee},
+  year          = {1999},
+  title         = {Construction of the adjoint {MIT} ocean general circulation model and application to {A}tlantic heat transport variability},
+  journal       = jgr,
+  volume        = {104, C12},
+  pages         = {29,529--29,547},
+}
+
+@inproceedings {  GiKa02,
+  author        = {R. Giering and T. Kaminski},
+  title         = {Applying TAF to generate efficient derivative code of Fortran 77-95 programs},
+  booktitle     = {Proceedings of GAMM 2002, Augsburg, Germany},
+  editor        = {},
+  pages         = {},
+  year          = {2002}
+}
+
+@article{         HNP02,
+  author        = {L. Hasco{\"e}t and U. Naumann and V. Pascual},
+  title         = {"{T}o be recorded" analysis in reverse-mode automatic differentiation.},
+  journal       = {Future Generation Comp. Syst.},
+  volume        = {21},
+  number        = {8},
+  year          = {2005},
+  pages         = {1401--1417}
+}
+
+@Book{            Muc97,
+  author        = {S.~Muchnick},
+  title         = {Advanced Compiler Design and Implementation},
+  publisher     = {Academic Press},
+  year          = {1997},
+  address       = {San Diego},
+}
+
+@Article {   FTB97,
+  author        = {W. Feehery and J. Tolsma and P. Barton},
+  title         = {Efficient sensitivity analysis of large-scale differential-algebraic systems},
+  journal       = {Applied Numerical Mathematics},
+  volume        = {25},
+  year          = {1997},
+  pages         = {41--54}
+}
+
+@InProceedings{   BiHa96,
+  author        = {C.~Bischof and M.~Haghighat},
+  title         = {Hierarchical approaches to Automatic Differentiation},
+  booktitle     = {\cite{BBCG96}},
+  pages         = {82-94},
+  year          = {1996}
+}
+
+@article{         tzi-ioa:02,
+  author        = {E. Tziperman and P. Ioannou},
+  year          = {2002},
+  title         = {Transient Growth and Optimal Excitation of Thermohaline Variability},
+  journal       = jpo,
+  volume        = {32},
+  pages         = {3427--3435}
+}
+
+@InProceedings{   HHG02,
+  author        = {P. Heimbach and C. Hill and R. Giering},
+  title         = {Automatic Generation of Efficient Adjoint Code for a Parallel {N}avier-{S}tokes Solver},
+  booktitle     = {Computational Science -- ICCS~2002},
+  year          = {2002},
+  editor        = {P. Sloot and C. Tan and J. Dongarra and A. Hoekstra},
+  volume        = {2330},
+  series        = {LNCS},
+  pages         = {1019--1028},
+  address       = {Berlin},
+  publisher     = {Springer},
+}
+
+@INPROCEEDINGS {  NULF04CFR,
+  author        = {U. Naumann and J. Utke and A. Lyons and M. Fagan},
+  year          = {2004},
+  title         = {Control Flow Reversal for Adjoint Code Generation},
+  booktitle     = {Proceedings of the Fourth {IEEE} International Workshop on Source Code Analysis and Manipulation ({SCAM} 2004)},      
+  pages         = {55--64},
+  address       = {Los Alamitos, CA},
+  publisher     = {IEEE Computer Society}
+}
+
+@MISC {           actsWeb,
+  author        = {{ACTS}}, 
+  year          = {2006},
+  note          = {{A}djoint {C}ompiler {T}echnology \& {S}tandards project},
+  howpublished  = {\url{http://www.autodiff.org/ACTS}}
+} 
+
+@MISC {           mercurialWeb,
+  author        = {{mercurial}}, 
+  year          = {2008},
+  note          = {distributed source control system},
+  howpublished  = {\url{http://www.selenic.com/mercurial}}
+} 
+
+@MISC {           mitgcmWeb,
+  author        = {{MIT general circulation model (MITgcm)}},
+  year          = {2006},
+  howpublished  = {\url{http://mitgcm.org}}
+} 
+
+@MISC {           neosWeb,
+  author        = {{NEOS}},
+  year          = {2006},
+  note          = {{N}etwork {E}nhanced {O}ptimization {S}erver},
+  howpublished  = {\url{http://www-neos.mcs.anl.gov/}}
+} 
+
+
+@MISC {           openadWeb,
+  author        = {{OpenAD}},
+  year          = {2006},
+  howpublished  = {\url{http://www.mcs.anl.gov/OpenAD}}
+} 
+
+
+@MISC {           oaWeb,
+  author        = {{OpenAnalysis}},
+  year          = {2006},
+  howpublished  = {\url{https://openanalysis.berlios.de/}}
+} 
+
+@MISC {           adicWeb,
+  author        = {{ADIC}},
+  year          = {2006},
+  howpublished  = {\url{http://www.mcs.anl.gov/adicserver}}
+} 
+
+@MISC {           open64Web,
+  author        = {{Open64}},
+  year          = {2006},
+  howpublished  = {\url{http://www.hipersoft.rice.edu/open64}}
+} 
+
+@MISC {           openmpWeb,
+  author        = {{OpenMP}},
+  year          = {2006},
+  howpublished  = {\url{http://www.openmp.org}}
+} 
+
+@MISC {           boostWeb,
+  author        = {{Boost}},
+  howpublished  = {\url{http://www.boost.org}}
+} 
+
+@MISC {           libstdcWeb,
+  author        = {{GNU C++ Standard Library}},
+  howpublished  = {\url{http://gcc.gnu.org/libstdc++}}
+} 
+
+@MISC {           xercesWeb,
+  author        = {{Xerces C++ XML parser}},
+  howpublished  = {\url{http://xml.apache.org/xerces-c}}
+} 
+
+@MISC {           xmlWeb,
+  author        = {{Extensible Markup Language (XML)}},
+  howpublished  = {\url{http://www.w3.org/XML}}
+} 
+
+@MISC {           angelWeb,
+  author        = {{AD Nested Graph Elimination Library (angel)}},
+  howpublished  = {\url{http://angellib.sourceforge.net}}
+} 
+
+@MISC {           adiforWeb,
+  author        = {{ADIFOR}},
+  howpublished  = {\url{http://www.cs.rice.edu/\~adifor}}
+} 
+
+@MISC {           autodiffWeb,
+  author        = {{AD community website}},
+  howpublished  = {\url{http://www.autodiff.org}}
+} 
+
+@MISC {           edgWeb,
+  author        = {{Edison Design Group (EDG)}},
+  howpublished  = {\url{http://www.edg.com}}
+} 
+
+@MISC {           roseWeb,
+  author        = {{ROSE}},
+  howpublished  = {\url{http://www.llnl.gov/CASC/rose/}}
+} 
+
+@MISC {           xaifWeb,
+  author        = {{XAIF}},
+  howpublished  = {\url{http://www.mcs.anl.gov/xaif}}
+} 
+
+@InProceedings{   Utk04FBB,
+  author        = {J. Utke},
+  title         = {Flattening basic blocks},
+  booktitle     = {\cite{BCH+06}},
+  pages         = {121--133},
+  year          = {2006}
+}
+
+@ARTICLE {        wengert,
+  author        = {R. E. Wengert},
+  year          = {1964},
+  title         = {A Simple Automatic Derivative Evaluation Program},
+  journal       = {Comm. ACM},
+  volume        = {7},
+  number        = {8},
+  pages         = {463--464}
+}
+
+@InProceedings{   Nau00a,
+  author        = {U.~Naumann},
+  title         = {Elimination Techniques for Cheap {J}acobians},
+  booktitle     = {Automatic Differentiation of Algorithms -- From Simulation to Optimization},
+  year          = {2002},
+  editor        = {G.~Corliss and C.~Faure and A.~Griewank and L.~Hascoet and U.~Naumann},
+  publisher     = {Springer},
+  address       = {New York},
+  pages         = {247--253}
+}
+
+@INPROCEEDINGS {  NaUt05STAG,
+  author        = {U. Naumann and J. Utke},
+  title         = {Source Templates for the Automatic Generation of Adjoint Code through Static Call Graph Reversal},
+  booktitle     = {Computational Science - ICCS 2005},
+  editor        = {V. Sunderam and G. van Albada and P. Sloot and J. Dongarra},
+  year          = {2005},
+  volume        = {3514},
+  series        = {LNCS},
+  address       = {Berlin}, 
+  publisher     = {Springer},
+  pages         = {338--346}
+}
+
+@INPROCEEDINGS { UtNa04SLD,
+  author        = {J. Utke and U. Naumann},
+  title         = {Separating Language Dependent and Independent Tasks for the Semantic Transformation of Numerical Programs},
+  booktitle     = {Software Engineering and Applications (SEA 2004)},
+  editor        = {M. Hamza},
+  publisher     = {ACTA Press},
+  pages         = {552--558},
+  address       = {Anaheim, CA},
+  year          = {2004}
+}
+
+@INPROCEEDINGS {  UtNa03STI,
+  author        = {J. Utke and U. Naumann},
+  title         = {Software Technological Issues in Automatizing the Semantic Transformation of Numerical Programs},
+  booktitle     = {Software Engineering and Applications (SEA 2003)},
+  editor        = {M. Hamza},
+  publisher     = {ACTA Press},
+  pages         = {417--422},
+  address       = {Anaheim, CA},
+  year          = {2003}
+}
+
+@ARTICLE { UtLy05ERIF,
+  author        = {J. Utke and A. Lyons and U. Naumann},
+  title         = {Efficient Reversal of the Interprocedural Flow of Control in Adjoint Computations},
+  journal       = {Journal of Systems and Software},
+  publisher     = {Elsevier},
+  number        = {79},
+  pages         = {1280--1294},
+  year          = {2006}
+}
+
+@TechReport{      userManual, 
+  author        = {J. Utke and U. Naumann}, 
+  title         = {Open{AD}/{F}: User Manual}, 
+  institution   = {Argonne National Laboratory}, 
+  year          = {2006}, 
+  number        = {available at \url{http://www.mcs.anl.gov/openad/}}, 
+}
+
+
+@TechReport{      faure, 
+  author        = {C. Faure and Y. Papegay}, 
+  title         = {Odyss\'ee Version 1.6: The User's Reference Manual}, 
+  institution   = {Sophia Antipolis, Projet SAFIR}, 
+  year          = {1997}, 
+  number        = {available at \url{http://www.inria.fr/recherche/equipes/safir.en.html}}, 
+}
+
+@inproceedings{   StroutPASTE05,
+  year          = {2005},
+  title         = {Representation-Independent Program Analysis},
+  month         = {September 5-6},
+  booktitle     = {Proceedings of the Sixth {ACM SIGPLAN-SIGSOFT} Workshop on Program Analysis for Software Tools and Engineering (PASTE)},
+  author        = {M. Strout and J. Mellor-Crummey and P. Hovland},
+}   
+
+@InProceedings{   StroutADTA2006,
+  author        = {M. Strout and P. Hovland},
+  title         = {Linearity Analysis for Automatic Differentiation},
+  booktitle     = {Computational Science -- ICCS 2006},
+  series        = {LNCS},
+  publisher     = {Springer},
+  volume        = {3994},
+  pages         = {574--581},
+  year          = {2006}
+}
+
+@ARTICLE{         mars-etal:97,
+  author        = {J. Marshall and A. Adcroft and C. Hill and L. Perelman and C. Heisey},
+  title         = {A finite-volume, incompressible {N}avier {S}tokes model for studies of the ocean on parallel computers},
+  journal       = jgr,
+  year          = {1997},
+  volume        = {102, C3},
+  pages         = {5,753--5,766},
+}
+
+@ARTICLE{         gier-kami:98,
+  author        = {R. Giering and T. Kaminski},
+  title         = {Recipes for adjoint code construction},
+  journal       = {ACM Transactions on Mathematical Software},
+  year          = {1998},
+  volume        = {24},
+  pages         = {437--474},
+}
+
+@ARTICLE{         maro-etal:99,
+  author        = {J. Marotzke and R. Giering and K.Q. Zhang and D. Stammer and C. Hill and T. Lee},
+  title         = {Construction of the adjoint {MIT} ocean general circulation model and application to {A}tlantic heat transport variability},
+  journal       = jgr,
+  year          = {1999},
+  volume        = {104, C12},
+  pages         = {29,529--29,547},
+}
+
+@ARTICLE{         stam-etal:02,
+  author        = {D. Stammer and C. Wunsch and R. Giering and C. Eckert and P. Heimbach and J. Marotzke and A. Adcroft and C.N. Hill and J. Marshall},
+  title         = {The global ocean circulation and transports during 1992 -- 1997, estimated from ocean observations and a general circulation model.},
+  journal       = jgr,
+  year          = {2002},
+  volume        = {107(C9)},
+  pages         = {3118},
+  doi           = {10.1029/2001JC000888},
+}
+
+@BOOK{            wuns:06a,
+  title         = {Discrete Inverse and State Estimation Problems: With Geophysical Fluid Applications},
+  publisher     = cup,
+  year          = {2006},
+  author        = {C. Wunsch},
+  address       = {Cambridge (UK)},
+  pages         = {400 pp.},
+}
+
+@ARTICLE{         heim-etal:05,
+  author        = {P. Heimbach and C. Hill and R. Giering},
+  title         = {An efficient exact adjoint of the parallel {MIT} general circulation model, generated via automatic differentiation},
+  journal       = {Future Generation Computer Systems},
+  year          = {2005},
+  volume        = {21(8)},
+  pages         = {1356--1371},
+  doi           = {10.1016/j.future.2004.11.010},
+}
+
+@ARTICLE{         wuns-heim:06,
+  author        = {C. Wunsch and P. Heimbach},
+  title         = {Practical global oceanic state estimation},
+  journal       = {Physica D},
+  year          = {2006},
+  volume        = {{in press}},
+  pages         = {}
+}
+
+@ARTICLE{         losc-wuns:03,
+  author        = {M. Losch and C. Wunsch},
+  title         = {Bottom topography as a control variable in an ocean model},
+  journal       = jaot,
+  year          = {2003},
+  volume        = {20},
+  pages         = {1685--1696},
+}
+
+@TECHREPORT{      ad02,
+  author        = {J. Pryce and J. Reid},
+  title         = {{AD01}, a {F}ortran 90 code for automatic differentiation},
+  institution   = {Rutherford Appleton Laboratory, Chilton, Oxfordshire, England}, 
+  year          = {1998}, 
+  number        = {RAL-TR-1998-057},
+}
+
+
+@ARTICLE{         adolc,
+  author        = "A. Griewank and D. Juedes and J. Utke",
+  title         = "{ADOL--C}, A Package for the Automatic Differentiation of Algorithms Written in {C/C++}",
+  journal       = "ACM Trans. Math. Software",
+  pages         = "131--167",
+  year          = "1996",
+  volume        = "22",
+  number        = "2"
+}
+
+@ARTICLE{        hot,
+  author        = "A. Griewank and J. Utke and A. Walther",
+  title         = "Evaluating Higher Derivative Tensors by Forward Propagation of Univariate {T}aylor Series",
+  journal       = "Mathematics of Computation",
+  pages         = "1117--1130",
+  year          = "2000",
+  volume        = "69"
+}
+
+@MISC {           petsc,
+  author        = {{Portable, {E}xtensible {T}oolkit for {S}cientific Computation}},
+  howpublished  = {\\\url{http://www.mcs.anl.gov/petsc}}
+} 
+
+@MISC {           rapsodiaWeb,
+  author        = {{Rapsodia website}},
+  howpublished  = {\\\url{http://www.mcs.anl.gov/rapsodia}}
+} 
+
+@MISC {           numericalRecipes,
+  author        = {{Numerical {R}ecipes Online}},
+  howpublished  = {\url{http://www.nr.com/}}
+}
+
+@MISC {           pythonWeb,
+  author        = {{Python {P}rogramming {L}anguage}},
+  howpublished  = {\url{http://www.python.org/}}
+}
+
+@ARTICLE{         charpentier04,
+  author        = "I. Charpentier and P. Roux",
+  title         = "Mode and Wavenumber inversion in shallow water using an adjoint method",
+  journal       = "Journal of Computational Acoustics",
+  pages         = "521--542",
+  year          = "2004",
+  volume        = "12"
+}
+
+@INPROCEEDINGS{   sm,
+  author        = "Christian H. Bischof and Larry Green and Ken Haigler and T. Knauff",
+  title         = "Calculation of Sensitivity Derivatives for Aircraft Design Using Automatic Differentiation",
+  booktitle     = "Proceedings of the 5th {AIAA/NASA/USAF/ISSMO} Symposium on Multidisciplinary Analysis and Optimization, AIAA 94-4261",
+  pages         = "73--84",
+  publisher     = "American Institute of Aeronautics and Astronautics",
+  year          = "1994"
+}
+
+@ARTICLE{         brauner89,
+  author        = "M. Brauner and J. Briggs and H. Klar",
+  year          = "1989", 
+  title         = "Triply-differential cross sections for ionization of hydrogen atoms by electrons and positrons",
+  journal       = "J. Phys. B.: At. Mol. Phys.", 
+  volume        = "22",
+  pages         = "2265--2287"
+} 
+ 
+@ARTICLE{         charpentier,
+  author        = "I. Charpentier", 
+  title         = "Adjoint modelling experiments on eruptive columns", 
+  journal       = "Geophysical Journal International", 
+  volume        = "169", 
+  number        = "3",
+  year          = "2007",
+  pages         = "1356--1365"
+}
+
+@ARTICLE{        sparks86,
+  author        = "R. Sparks",  
+  year          = "1986",
+  title         = "The dimension and dynamics of volcanic eruption columns",
+  journal       = "J. Volcanol. Geotherm. Res.",
+  volume        = "48", 
+  pages         = "13--15"
+}
+ 
+@ARTICLE{        woods88,
+  author        = "A. Woods", 
+  year          = "1988",
+  title         = "The fluid dynamics and thermodynamics of eruption columns",
+  journal       = "Bull. Volcanol.",
+  volume        = "50", 
+  pages         = "169--193"
+} 
+
+@INPROCEEDINGS{  jones,
+  author        = "S. Jones  and D. Madison",
+  year          = "2003",
+  title         = "Single and double ionization of atoms by photons, electrons, and ions",
+  booktitle     = "{AIP} Conference proceedings 697", 
+  editors       = {G. Hanne and L. Malegat and H. Schmidt-B\"ocking},
+  pages         = "70--73"
+}
+
+@BOOK{           sparks97,
+  author        = "R. Sparks and M.  Bursik and S. Carey and J. Gilbert and L. Glaze and H.  Sigurdsson and  A. Woods", 
+  year          = "1997",
+  title         = {Volcanic Plumes},
+  publisher     = "J. Wiley \& Sons"
+}
+
+@BOOK{           jensen,
+  author        = "F. Jensen and W. Kuperman and M. Porter and H. Schmidt",
+  year          = "1994",
+  title         = "Computational Ocean acoustics",
+  publisher     = {Springer},
+  address       = {New York}
+}
+ 
+@ARTICLE{        baggeroer,
+  author        = "A.B. Baggeroer and W.A. Kuperman and P.N. Mikhalevsky",
+  year          = "1993",
+  title         = "An overview of matched field methods in ocean acoustics",
+  journal       = "IEEE Journal of Ocean. Eng.",
+  volume        = "18",
+  pages         = "401--424"
+ }
