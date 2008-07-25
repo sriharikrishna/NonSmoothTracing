@@ -27,25 +27,6 @@
 \setcounter{secnumdepth}{6}
 \setcounter{tocdepth}{6}
 
-
-% page layout
-% letter size
-\paperheight     11in
-\paperwidth      8.5in
-% print area
-\leftmargin      0in
-\rightmargin     0in
-\textheight      9.5in
-\textwidth       7.0in
-\topmargin      -0.5in
-%\headheight      0in
-%\headsep         0in
-\oddsidemargin   0in
-\evensidemargin -0.5in
-
-
-\fboxsep.5mm
-
 % names and CS terms
 
 % math
@@ -82,7 +63,7 @@
 \newcommand{\refeqn}[1]{{(\ref{#1})}} 
 \newcommand{\refdef}[1]{{Def.~(\ref{#1})}} 
 
-\title{A tracing facility for Nonsmooth Model Behavior}
+\title{A tracing facility for Nonsmooth Model Behavior in OpenAD}
 \author{J. Utke}
 \date{ }
 
@@ -139,7 +120,7 @@ The situation with the disctinct subdomains is described to illustrate
 certain aspects of using Adol-C in \cite{adolc} and we 
 replicate it here in \reffig{fig:subdomains}. 
 \begin{figure}
-\includegraphics[height=2.2cm]{nonsmooth1}
+\centerline{\includegraphics[height=2.2cm]{nonsmooth1}}
 \caption{A nonsmooth model with subdomains}\label{fig:subdomains} 
 \end{figure}
 The model is first evaluated at point P0.  Relative to P0 we distinguish the 
@@ -186,7 +167,87 @@ running a simulation in the debuger to observe certain values is too tedious.
 Clearly such a use also requires some restrictions on the information that is being 
 collected to reduce the amount of tracing data that has to be dealt with.
 
+
+% #########################################################################################
+\section{Usage}
+
+The source transformation that provides the tracing facility is implemented in the 
+OpenAD framework \cite{openad}. The website 
+\centerline{\url{www.mcs.anl.gov/openad}}
+provides details on the downloading and building the tool chain. 
+
+\subsection{One Minute Example}
+We assume a simple routine computing $y=f(x)=\tan(x)$ implemented by \lstinline{head}.
+\begin{figure}
+\lstinputlisting{Code/OneMinuteExample/head.f90}
+\caption{Simple example code}\label{fig:oneMinute}
+\end{figure}
+We need to prepare the code for the activity analysis by specifying the indpendent variables
+(here \lstinline{x}) and the dependent variables (here \lstinline{y})
+\begin{figure}
+\lstinputlisting{Code/OneMinuteExample/head.prepped.f90}
+\caption{Augmented code from \reffig{fig:oneMinute}}\label{fig:oneMinutePrepped}
+\end{figure}
+In the following we assume the OpenAD environment has been set up as 
+described in \cite{manual} Sect. 2.2.
+For this simple example we can use the  wrapper script\\
+\hspace{1cm}\lstinline{\$OPENADROOT/bin/openad}\\
+The directory should have been added to the \lstinline{PATH}. 
+It provides a simple recipe for the tracing transformation that we can use in 
+a straightforward case like this. When invoked like\\  
+\hspace{1cm}\lstinline{openad -m t head.prepped.f90}\\
+it produces some progress output on the screen like this
+{\tiny
+\verbatimfile{OneMinuteStatusOutput.txt}
+}
+
+
+
+
+
+
+
+
+\subsection{Transformation Stages}
+The transformation of the source code is performed in stages in the same fashion as 
+outlined in the OpenAD Manual \cite{openadManual}. 
+The differences in the tool chain are the choice of the transformation algorithm 
+in the xaifBooster component and the selection of the runTime library in connection with 
+the postprocessor templates. 
+\subsection{The Tracing Transformation}
+The stages prior to the tracing transformation are 
+\begin{itemize}
+\item declaration of independent and dependent program variables
+\item canonicalization (optional)
+\item parsing Fortran with the Open64 front-end (mfef90)
+\item translating the Open64 internal representation to xaif (whirl2xaif)
+\end{itemize}
+The numerical model is now given as an xaif file to which we apply the tracing transformation. 
+Conceptually, the tracing transformation shares the following aspects with AD transformations implemented in 
+OpenAD:
+\begin{itemize}
+\item redeclaration of program variables using a special type (active) when these variables 
+	have been determined to hold active values by the activity analysis.
+\item transformation associated with this type change, for instance as  applied to 
+	calls to black box subroutines
+\item augmentation of the control flow graph, for instance to be able to count loop iterations
+\end{itemize}
+The transformation options associated with the tracing facility are as follows.
+{\tiny
+\verbatimfile{tracingAlgOpts.txt}
+}
+The transformation steps after this stage are as follows
+\begin{itemize}
+\item translating from xaif to the Open64 internal representation (xaif2whirl)
+\item unparsing the Open64 internal representation into Fortran (whirl2f)
+\item postprocessing
+\item compile and link
+\end{itemize}
+
+
+
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\section{Concepts}
 \subsection{Tracing and Activity Analysis}
 An important concept in AD is that of {\em active} values, that is 
 program data that lies on a dependency path from the subset of inputs $\bmx$ to 
@@ -242,7 +303,6 @@ else
 end if 
 ...
 \end{lstlisting}
-\includegraphics[height=2.2cm]{nonsmooth1}
 \caption{A control flow decision depening on a nonactive variable}\label{fig:missedThis} 
 \end{figure}
 Given this scenario one might arrive at various conclusions. 
@@ -265,7 +325,6 @@ subsequent active computations.
 i = int(a) 
 a = a * t(i)
 \end{lstlisting}
-\includegraphics[height=2.2cm]{nonsmooth1}
 \caption{An address computation into a lookup table impacting the subsequent computation}\label{fig:subdomains} 
 \end{figure}
 Unfortunately the definition of ``indirectly usefull'' cannot be directly used in a 
@@ -329,6 +388,7 @@ growing derivative values.}\label{fig:growingExample}
 An oscillation of the derivative values can originate for example from 
 switching between two subdomains as depicted in  \reffig{fig:oscillatingExample}.
 \begin{figure}
+\begin{lstlisting}
 do while time .lt. timeEnd
   if ( a .gt. a\_critical ) 
   then
@@ -338,6 +398,7 @@ do while time .lt. timeEnd
   end if
   time = time + timeStep
 end do  
+\end{lstlisting}
 \includegraphics[height=2.2cm]{nonsmooth3}
 \caption{An iterative model with nonsmooth behavior yields 
 oscillating derivative values.}\label{fig:oscillatingExample} 
@@ -354,15 +415,36 @@ of traces for different time steps.
 If a model already contains iterations, e.g. if we considered the time stepping 
 loops part of our example models, one will have to narrow the scope to 
 subtraces within the model. 
-h
-% #########################################################################################
-\section{Usage}
+ 
+
+    
+
 
 % #########################################################################################
-\section{Example}
+\section{Examples}
+A study on large model computation with  a setup of the MIT general circulation model 
+is currently underway.  
+Here we want to illustrate the use of the tracing facility on three small examples.
+\subsection{Loop Bounds}
+\begin{figure}
+\begin{lstlisting}
+        subroutine head(x,y)
+          double precision, dimension(2), intent(in) :: x
+          double precision, dimension(1), intent(out) :: y
+          integer i
+c$openad INDEPENDENT(x)
+          y(1)=x(1) 
+          do i=int(x(1)),int(x(2))+2
+            y(1)=y(1)*x(2)
+          end do
+c$openad DEPENDENT(y)
+        end subroutine
+\end{lstlisting}
+\end{figure} 
+ 	
 
 % #########################################################################################
-\section{Implementation}\label{sec:analysis}
+\section{Implementation Detrails}\label{sec:implementation}
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \subsection{Analysis}\label{sec:analysis}
   
@@ -370,7 +452,7 @@ h
 
 
  
-The tool OpenAD \cite{OpenAD} is the basis for the actual implementation. 
+The tool OpenAD \cite{openad} is the basis for the actual implementation. 
 It uses the activity analysis implemented in the OpenAnalysis \cite{OpenAnalysis} library 
 to obtain the set of active variables. 
 

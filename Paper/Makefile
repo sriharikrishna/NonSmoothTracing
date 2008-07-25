@@ -3,7 +3,14 @@ TARGET=tracing
 FIGFILES=$(wildcard *.fig)
 FIG2PDF=$(FIGFILES:.fig=.pdf)
 
-EXTRAREQS=versionInfo.txt versionInfoR.txt $(FIG2PDF)
+EXTRAREQS=versionInfo.txt versionInfoR.txt $(FIG2PDF) tracingAlgOpts.txt OneMinuteStatusOutput.txt
+
+THISDIR=$(shell pwd)
+
+
+ifndef OPENADROOT
+$(error "environment variable OPENADROOT undefined")
+endif
 
 $(TARGET).pdf : $(TARGET).aux $(TARGET).blg $(TARGET).bbl
 	# run it twice
@@ -16,8 +23,11 @@ extraReqs: $(EXTRAREQS)
 versionInfo.txt versionInfoR.txt : FORCE 
 	./createVersionInfo.sh
 
-generatorOptions.txt : FORCE
-	cd ../../Rapsodia/Generator && ./generate.py -h > ../../Rapsodia_Manual/Manual/$@
+tracingAlgOpts.txt : FORCE
+	./createOptionsOuput.sh 
+
+OneMinuteStatusOutput.txt : FORCE
+	./createOneMinuteStatusOutput.sh
 
 $(TARGET).aux :  extraReqs $(TARGET).tex $(TARGET).bib 
 	# ensure we make a .aux file
