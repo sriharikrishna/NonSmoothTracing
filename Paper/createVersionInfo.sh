@@ -15,20 +15,41 @@ else
   rm  versionInfo.txt.new
 fi
 
-cd ../../Rapsodia
+THISDIR=$PWD
+cd $OPENADROOT
 hg tip > /dev/null
 if [ $? -ne 0 ] 
 then 
-  echo "hg: n/a by $USER" > ../Rapsodia_Manual/Manual/versionInfoR.txt.new
+  echo "hg: n/a by $USER" > $THISDIR/versionInfoOpenAD.txt.new
 else
-  echo -n "$(hg tip | grep changeset: | sed 's/changeset:[ ]*\(.*\):\(.*\)/hg:\1/'):$(hg id | sed 's/\([^ ].*\) \(.*\)/\1/')" > ../Rapsodia_Manual/Manual/versionInfoR.txt.new
-  echo " by $(echo $USER | sed 's/_/\\_/')" >> ../Rapsodia_Manual/Manual/versionInfoR.txt.new  
+  echo -n "$(hg tip | grep changeset: | sed 's/changeset:[ ]*\(.*\):\(.*\)/hg:\1/'):$(hg id | sed 's/\([^ ].*\) \(.*\)/\1/')" > $THISDIR/versionInfoOpenAD.txt.new
+  echo " by $(echo $USER | sed 's/_/\\_/')" >> $THISDIR/versionInfoOpenAD.txt.new
 fi
-cd ../Rapsodia_Manual/Manual
-diff versionInfoR.txt.new versionInfoR.txt > /dev/null
+cd $THISDIR
+diff versionInfoOpenAD.txt.new versionInfoOpenAD.txt > /dev/null
 if [ $? -ne 0 ]
 then 
-  mv versionInfoR.txt.new versionInfoR.txt
+  mv versionInfoOpenAD.txt.new versionInfoOpenAD.txt
 else 
-  rm  versionInfoR.txt.new
+  rm  versionInfoOpenAD.txt.new
 fi
+
+cd $OPENADROOT/xaifBooster
+hg tip > /dev/null
+if [ $? -ne 0 ] 
+then 
+  echo "hg: n/a by $USER" > $THISDIR/versionInfoxaifBooster.txt.new
+else
+  echo -n "$(hg tip | grep changeset: | sed 's/changeset:[ ]*\(.*\):\(.*\)/hg:\1/'):$(hg id | sed 's/\([^ ].*\) \(.*\)/\1/')" > $THISDIR/versionInfoxaifBooster.txt.new
+  echo " by $(echo $USER | sed 's/_/\\_/')" >> $THISDIR/versionInfoxaifBooster.txt.new
+fi
+cd $THISDIR
+diff versionInfoxaifBooster.txt.new versionInfoxaifBooster.txt > /dev/null
+if [ $? -ne 0 ]
+then 
+  mv versionInfoxaifBooster.txt.new versionInfoxaifBooster.txt
+else 
+  rm  versionInfoxaifBooster.txt.new
+fi
+
+cd $THISDIR

@@ -479,7 +479,7 @@
   author        = {J. Utke and U. Naumann}, 
   title         = {Open{AD}/{F}: User Manual}, 
   institution   = {Argonne National Laboratory}, 
-  year          = {2006}, 
+  year          = {2008}, 
   number        = {available at \url{http://www.mcs.anl.gov/openad/}}, 
 }
 
@@ -720,3 +720,66 @@
   volume        = "18",
   pages         = "401--424"
  }
+
+@INPROCEEDINGS{tfs-delayed,
+TITLE     = "Delayed Propagation of Derivatives in a Two-dimensional
+             Aircraft Design Optimization Problem",
+AUTHOR    = "H. Martin B{\"u}cker and A. Rasch and E. Slusanschi
+             and Christian H.~Bischof",
+BOOKTITLE = "Proceedings of the 17th Annual International Symposium
+             on High Performance Computing Systems and Applications
+             and OSCAR Symposium, Sherbrooke, Qu\'{e}bec, Canada,
+             May 11--14",
+EDITOR    = "D. S\'{e}n\'{e}chal",
+PUBLISHER = "NRC Research Press",
+ADDRESS   = "Ottawa",
+PAGES     = "123--126",
+YEAR      = "2003",
+}
+
+@ARTICLE{tfs-chain,
+TITLE   = "Efficient and accurate derivatives for a software process chain
+           in airfoil shape optimization",
+AUTHOR  = "C. H. Bischof and H. M. B{\"u}cker and B. Lang and A. Rasch
+           and E. Slusanschi",
+JOURNAL = "Future Generation Computer Systems",
+PAGES   = "1333--1344",
+DOI     = "doi:10.1016/j.future.2004.11.002",
+YEAR    = "2005",
+VOLUME  = "21",
+NUMBER  = "8",
+} 
+
+@Article{openad,
+  author =       "Jean Utke and Uwe Naumann and Mike Fagan and Nathan Tallent and Michelle Strout and 
+                 Patrick Heimbach and Chris Hill and Carl Wunsch",
+  title =        "OpenAD/F: A Modular, Open-Source Tool for Automatic Differentiation of {Fortran} Codes",
+  journal =      "{ACM} Transactions on Mathematical Software",
+  volume =       "34",
+  number =       "4",
+  month =        jul,
+  year =         "2008",
+  pages =        "18",
+  note =         "Article 18, 36 pages",
+  URL =          "http://doi.acm.org/10.1145/1377596.1377598",
+  abstract =     "The OpenAD/F tool allows the evaluation of derivatives of functions defined by a Fortran 
+                  program. The derivative evaluation is performed by a Fortran code resulting from the 
+                  analysis and transformation of the original program that defines the function of interest. 
+                  OpenADF has been designed with a particular emphasis on modularity, flexibility, and the 
+                  use of open source components. While the code transformation follows the basic principles 
+                  of automatic differentiation, the tool implements new algorithmic approaches at various 
+                  levels, for example, for basic block preaccumulation and call graph reversal. Unlike most
+                  other automatic differentiation tools, OpenAD/F uses components provided by the OpenAD 
+                  framework, which supports a comparatively easy extension of the code transformations in a 
+                  language-independent fashion. It uses code analysis results implemented in the OpenAnalysis 
+                  component. The interface to the language-independent transformation engine is an XML-based 
+                  format, specified through an XML schema. The implemented transformation algorithms allow 
+                  efficient derivative computations using locally optimized cross-country sequences of vertex, 
+                  edge, and face elimination steps. Specifically, for the generation of adjoint codes, OpenAD/F 
+                  supports various code reversal schemes with hierarchical checkpointing at the subroutine
+                  level. As an example from geophysical fluid dynamics a nonlinear time-dependent scalable, 
+                  yet simple, barotropic ocean model is considered. OpenAD/F's reverse mode is applied to compute 
+                  sensitivities of some of the model's transport properties with respect to gridded fields 
+                  such as bottom topography as independent (control) variables.",
+}
+
