@@ -180,6 +180,7 @@ OpenAD framework \cite{openad}. The website\\
 \centerline{\url{www.mcs.anl.gov/openad}}\\
 provides details on the downloading and building the tool chain. 
 
+% -----------------------------------------------------------------------------------------
 \subsection{One Minute Example}
 We assume a simple routine computing $y=f(x)=\tan(x)$ implemented by \lstinline{head}.
 \begin{figure}
@@ -194,70 +195,163 @@ We need to prepare the code for the activity analysis by specifying the indpende
 \end{figure}
 In the following we assume the OpenAD environment has been set up as 
 described in \cite{userManual} Sect. 2.2.
-For this simple example we can use the  wrapper script\\
-\hspace*{1cm}\lstinline{$OPENADROOT/bin/openad}\\ #$
+For this simple example we can use the  wrapper script\\[1ex]
+\hspace*{1cm}\lstinline{$OPENADROOT/bin/openad}\\[1ex] %$
 The directory should have been added to the \lstinline{PATH}. 
 It provides a simple recipe for the tracing transformation that we can use in 
-a straightforward case like this. When invoked like\\  
-\hspace*{1cm}\lstinline{openad -m t head.prepped.f90}\\
-it produces some progress output on the screen like this
-{\tiny
-\verbatimfile{OneMinuteStatusOutput.txt}
-}
-The resulting fortran output is contained in a file called \lstinline{head.prepped.xb.x2w.w2f.pp.f} and 
-its contents is shown in \reffig{fig:OneMinuteTransformed}  
+a straightforward case like this. When invoked like\\[1ex] 
+\hspace*{1cm}\lstinline{openad -m t head.prepped.f90}\\[1ex]
+it produces some progress output on the screen like this\\[1ex]
+\hspace*{1cm}\begin{minipage}{\textwidth}
+\small\verbatimfile{oneMinuteStatusOutput.txt}
+\vspace*{1ex}
+\end{minipage}
+The resulting fortran output is contained in a file called\\[1ex]
+\hspace*{1cm}\lstinline{head.prepped.xb.x2w.w2f.pp.f}\\[1ex] 
+and its contents is shown in \reffig{fig:OneMinuteTransformed}  
 \begin{figure}
 \lstinputlisting{Code/OneMinuteExample/head.prepped.xb.x2w.w2f.pp.f}
-\caption{Simple example code}\label{fig:oneMinute}
+\caption{Transformed code (fixed format) from input shown in \reffig{fig:oneMinutePrepped}}\label{fig:oneMinuteTransformed}
 \end{figure}
+In the transformed Fortran one finds two versions of the code, one is the original 
+on line 28 and one is augmented on lines 32--36. Which version is being run depends 
+on the value of the components of \lstinline{our_rev_mode} which is to be controled 
+by a driver that calls \lstinline{head(x,y)}.
+A simple such driver is shown in \reffig{fig:oneMinuteDriver}. 
+\begin{figure}
+\lstinputlisting{Code/OneMinuteExample/driver.f90}
+\caption{Driver routine for the transformed code  shown in \reffig{fig:oneMinuteTransformed}}\label{fig:oneMinuteDriver}
+\end{figure}
+On line 11 a generic initialization of the tracing environment is performed.  A First trace is 
+started on line 12. The call to \lstinline{oad_trace_open} opens a file called 
+\lstinline{oad_tr_001.xml} and sets up the running mode \lstinline{oad_rev_mode} 
+referenced on lines 26 and 30 of \reffig{fig:OneMinuteTransformed}.
+In the driver we change then the value at which we compute \lstinline{head} and 
+open a second trace which is named \lstinline{oad_tr_002.xml}. 
+The \lstinline{openad} script links the required run time support files 
+to the working directory and all files can be compiled with 
+a \lstinline{makefile} such as the one shown in \reffig{fig:OneMinuteMake}.
+\begin{figure}
+\hspace*{.5cm}\begin{minipage}{\textwidth}
+\scriptsize\verbatimfile{Code/OneMinuteExample/Makefile}
+\end{minipage}
+\caption{Contents of a \lstinline{makefile} to compile and link the example.}\label{fig:OneMinuteMake}.
+\end{figure}.
 
+The contents of the trace output files generated when running \lstinline{driver} 
+is shown in \reffig{fig:OneMinuteXMLOutput}.
+\begin{figure}
+\begin{minipage}{.5\textwidth}
+\lstinputlisting{Code/OneMinuteExample/oad_tr_001.xml}
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\lstinputlisting{Code/OneMinuteExample/oad_tr_002.xml}
+\end{minipage}
+\caption{Output \lstinline{oad_tr_001.xml} (left) 
+and \lstinline{oad_tr_002.xml} (right) 
+generated from \reffig{fig:oneMinuteDriver}}\label{fig:OneMinuteXMLOutput}
+\end{figure}
+Clearly the tracing outputs are identical except for line 4 where we show the 
+different output for the respective smooth subdomain \lstinline{sd} at which the 
+\lstinline{tan} intrinsic is being evaluated. The interpretation of the subdomain of $\tan(x)$ 
+is \lstinline{sd=}$k$ with integer $k=\lfloor\frac{x+\pi/2)}{\pi}\rfloor$ and in our 
+example the change in the \lstinline{sd} value  indicates that we moved from one smooth 
+subdomain to another. 
 
-
-
-
-
-
-
-\subsection{Transformation Stages}
+% -----------------------------------------------------------------------------------------
+\subsection{Detailled Usage}
 The transformation of the source code is performed in stages in the same fashion as 
-outlined in the OpenAD Manual \cite{userManual}. 
+summarized in the OpenAD Manual \cite{userManual}, Sect. 2.5. 
 The differences in the tool chain are the choice of the transformation algorithm 
 in the xaifBooster component and the selection of the runTime library in connection with 
 the postprocessor templates. 
-\subsection{The Tracing Transformation}
 The stages prior to the tracing transformation are 
 \begin{itemize}
-\item declaration of independent and dependent program variables
-\item canonicalization (optional)
-\item parsing Fortran with the Open64 front-end (mfef90)
-\item translating the Open64 internal representation to xaif (whirl2xaif)
+\item collecting all the model program sources into a  single source code file; declaration of independent and dependent program variables (see \cite{userManual}, Sect. 2.3)
+\item canonicalization (optional, see \cite{userManual}, Sect. 4.2.1)
+\item parsing Fortran with the Open64 front-end (\lstinline{mfef90}, see \cite{userManual}, Sect. 4.2.2)
+\item translating the Open64 internal representation to xaif (\lstinline{whirl2xaif}, see \cite{userManual}, Sect. 4.2.3)
 \end{itemize}
+The stages following the tracing transformation are 
+The transformation steps after this stage are as follows
+\begin{itemize}
+\item translating from xaif to the Open64 internal representation (\lstinline{xaif2whirl}, see \cite{userManual}, Sect. 4.2.3)
+\item unparsing the Open64 internal representation into Fortran (\lstinline{whirl2f}, see \cite{userManual}, Sect. 4.2.2)
+\item postprocessing (see \cite{userManual}, Sect. 4.2.4)
+\item compile and link (see \cite{userManual}, Sect. 2.6)
+\end{itemize}
+% -----------------------------------------------------------------------------------------
+\subsubsection{The Tracing Transformation}
 The numerical model is now given as an xaif file to which we apply the tracing transformation. 
-Conceptually, the tracing transformation shares the following aspects with AD transformations implemented in 
+Conceptually, the tracing transformation shares the following aspects with other 
+AD-related transformations implemented in 
 OpenAD:
 \begin{itemize}
-\item redeclaration of program variables using a special type (active) when these variables 
+\item redeclaration of program variables using a special, {\em active} type these variables 
 	have been determined to hold active values by the activity analysis.
 \item transformation associated with this type change, for instance as  applied to 
 	calls to black box subroutines
 \item augmentation of the control flow graph, for instance to be able to count loop iterations
 \end{itemize}
 The transformation options associated with the tracing facility are as follows.
-{\tiny
+{\scriptsize
 \verbatimfile{tracingAlgOpts.txt}
 }
-The transformation steps after this stage are as follows
-\begin{itemize}
-\item translating from xaif to the Open64 internal representation (xaif2whirl)
-\item unparsing the Open64 internal representation into Fortran (whirl2f)
-\item postprocessing
-\item compile and link
-\end{itemize}
+As shown for instance for the example in \reffig{fig:OneMinuteTransformed} the 
+transformation generates two different versions of the input code on a per subroutine basis. 
+The first one is essentially the input containing only changes related to the 
+type change of active variables. The second version is the actual tracing. 
+% -----------------------------------------------------------------------------------------
+\subsubsection{Runtime Support Files}
+The following files support the implementation of the tracing transformation.
+\begin{description}
+\item[{\tt ad\_template.f}:] the template file used by the postprocessor to inject the two code versions created per 
+subroutine into a control structure that makes up the new subroutine body; a simple version of such a template file 
+can be found in\\[1ex]   
+\hspace*{1cm}\lstinline{$OPENADROOT/runTimeSupport/simple/ad_template.trace.f} \\[1ex]%$
+The name of the template file can be specified to the postprocessor \lstinline{multi-pp.pl} using
+\lstinline{-f <template_file_name>} or specified in the source code inside each subroutine body using 
+the \lstinline{!$openad  XXX Template <template_file_name>} %$
+pragma. If nothing is specified the postprocessor expects a template file named \lstinline{ad_template.f} in the 
+current working directory.  \\[1ex]
+\hspace*{1cm}\lstinline{$OPENADROOT/runTimeSupport/simple/OAD_trace.f90} \\[1ex]%$ the module that contains 
+the routines used to generate the trace xml output. For instance related to the tracing of 
+the calls to the \lstinline{tan} intrinsic it contains a module procedure\\[1ex]
+\lstinputlisting[firstline=347,lastline=351]{Code/OneMinuteExample/OAD_trace.f90}
+The routines to be called directly by the user are discussed in \refsec{sec:DriverRoutine}.
+\item[{\tt w2f\_\_types.f90} and {\tt iaddr.c}:] the generic support files needed by most OpenAD transformed source code;
+the files can be found in \\[1ex]
+\hspace*{1cm}\lstinline{$OPENADROOT/runTimeSupport/all/}%$
+\item[{\tt OAD\_active.f90} and {\tt OAD\_rev.f90}:] the definition for the active type and the state 
+controlling the version of the code to be executed;
+the files can be found in \\[1ex]
+\hspace*{1cm}\lstinline{$OPENADROOT/runTimeSupport/simple/}%$
+\end{description}
+Except for the template file listed as the first item all other files are just compiled and linked 
+with the transformed model source and a suitable driver.
 
+% -----------------------------------------------------------------------------------------
+\subsubsection{Driver Routine}\label{sec:DriverRoutine}
 
+We assume some program logic (the {\em driver}) that initializes the input variables of the model, executes the model 
+computation itself and then processes the output values. 
+That driver logic  is the natural location for orchestrating the tracing of the model. 
+All the required elements to be added to the driver logic are already given in the example 
+in \reffig{fig:OneMinuteDriver}. The required modules to be used are \lstinline{OAD_active}, 
+\lstinline{OAD_trace}. A third module \lstinline{OAD_rev} is used by \lstinline{OAD_trace}
+internally. The routines to be called by user in the driver are as follows.
+\begin{description}
+\item[{\tt oad\_trace\_init}:] initialize the tracing module by resetting the file counter
+\item[{\tt oad\_trace\_open}:] start a new trace; increments the counter used in the file name by one
+\item[{\tt oad\_trace\_close}:] close a trace file opened with \lstinline{oad_trace_open}
+\end{description}   
+If the scope of the trace is smaller than the entire model computation (see also \refsec{sec:GrowingDerivatives})
+then it may be necessary to place pairs of calls to \lstinline{oad_trace_open} and \lstinline{oad_trace_close} inside the model 
+source code. 
 
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \section{Concepts}
+% -----------------------------------------------------------------------------------------
 \subsection{Tracing and Activity Analysis}
 An important concept in AD is that of {\em active} values, that is 
 program data that lies on a dependency path from the subset of inputs $\bmx$ to 
@@ -363,8 +457,8 @@ and use just the set of varied values should the first iteration not be able to
 locate any problems.    
 In \refsec{sec:analysis} we discuss the practical implementation.
 
-% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-\subsection{Growing Derivatives}
+% -----------------------------------------------------------------------------------------
+\subsection{Growing Derivatives}\label{sec:GrowingDerivatives}
 In various practical applications of AD it was observed that particularly in iterative
 models the are cases where the  computed derivatives before a certain iteration count 
 oscillate and grow out of bounds. 
@@ -435,6 +529,7 @@ subtraces within the model.
 A study on large model computation with  a setup of the MIT general circulation model 
 is currently underway.  
 Here we want to illustrate the use of the tracing facility on three small examples.
+% -----------------------------------------------------------------------------------------
 \subsection{Loop Bounds}
 \begin{figure}
 \begin{lstlisting}
@@ -471,6 +566,7 @@ to obtain the set of active variables.
 
 
       
+% -----------------------------------------------------------------------------------------
 \subsection{Coverage}
 
 % #########################################################################################
