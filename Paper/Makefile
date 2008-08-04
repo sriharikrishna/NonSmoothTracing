@@ -3,7 +3,7 @@ TARGET=tracing
 FIGFILES=$(wildcard *.fig)
 FIG2PDF=$(FIGFILES:.fig=.pdf)
 
-EXTRAREQS=versionInfo.txt versionInfoR.txt $(FIG2PDF) tracingAlgOpts.txt OneMinuteStatusOutput.txt
+EXTRAREQS=versionInfo.txt $(FIG2PDF) tracingAlgOpts.txt oneMinuteStatusOutput.txt
 
 THISDIR=$(shell pwd)
 
@@ -20,14 +20,14 @@ $(TARGET).pdf : $(TARGET).aux $(TARGET).blg $(TARGET).bbl
 extraReqs: $(EXTRAREQS)
 	echo $(EXTRAREQS)
 
-versionInfo.txt versionInfoR.txt : FORCE 
+versionInfo.txt : FORCE 
 	./createVersionInfo.sh
 
 tracingAlgOpts.txt : FORCE
 	./createOptionsOuput.sh 
 
-OneMinuteStatusOutput.txt : FORCE
-	./createOneMinuteStatusOutput.sh
+oneMinuteStatusOutput.txt : FORCE
+	./createOneMinuteOutput.sh
 
 $(TARGET).aux :  extraReqs $(TARGET).tex $(TARGET).bib 
 	# ensure we make a .aux file
@@ -41,6 +41,7 @@ $(TARGET).blg $(TARGET).bbl: $(TARGET).aux
 
 clean: 
 	rm -f *~ *bak $(TARGET).{toc,aux,ps,pdf,out,log,lof,lot,bbl,blg,dvi} $(EXTRAREQS)
+	cd Code/OneMinuteExample && $(MAKE) clean
 
 .PHONY: clean extraReqs
 
