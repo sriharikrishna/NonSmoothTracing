@@ -63,7 +63,7 @@
 \newcommand{\refeqn}[1]{{(\ref{#1})}} 
 \newcommand{\refdef}[1]{{Def.~(\ref{#1})}} 
 
-\title{A tracing facility for Nonsmooth Model Behavior in OpenAD}
+\title{A tracing facility for Nonsmooth Model Behavior}
 \author{J. Utke\\\\
         \small Preprint version: \input{versionInfo.txt} compiled for \\
         \small OpenAD version: \input{versionInfoOpenAD.txt}\\
@@ -257,6 +257,9 @@ different output for the respective smooth subdomain \lstinline{sd} at which the
 is \lstinline{sd=}$k$ with integer $k=\lfloor\frac{x+\pi/2)}{\pi}\rfloor$ and in our 
 example the change in the \lstinline{sd} value  indicates that we moved from one smooth 
 subdomain to another. 
+We note that the subdomain is computed at the time when the intrinsic is called. Line 2 and 3 
+are generated seperately prior to the call to allow to generate line number information 
+and if necessary also information about the arguments, see also \refsec{sec:ArrayIndex}.
 
 % -----------------------------------------------------------------------------------------
 \subsection{Detailled Usage}
@@ -342,7 +345,7 @@ in \reffig{fig:OneMinuteDriver}. The required modules to be used are \lstinline{
 internally. The routines to be called by user in the driver are as follows.
 \begin{description}
 \item[{\tt oad\_trace\_init}:] initialize the tracing module by resetting the file counter
-\item[{\tt oad\_trace\_open}:] start a new trace; increments the counter used in the file name by one
+\item[{\tt oad\_trace\_open}:] start a new trace; increments the file name counter 
 \item[{\tt oad\_trace\_close}:] close a trace file opened with \lstinline{oad_trace_open}
 \end{description}   
 If the scope of the trace is smaller than the entire model computation (see also \refsec{sec:GrowingDerivatives})
@@ -352,7 +355,7 @@ source code.
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \section{Concepts}
 % -----------------------------------------------------------------------------------------
-\subsection{Tracing and Activity Analysis}
+\subsection{Tracing and Activity Analysis}\label{sec:ActivityAnalysis}
 An important concept in AD is that of {\em active} values, that is 
 program data that lies on a dependency path from the subset of inputs $\bmx$ to 
 a subset of outputs $\bmy$. 
@@ -485,7 +488,7 @@ do while time .lt. timeEnd
   time = time + timeStep
 end do  
 \end{lstlisting}
-\includegraphics[height=2.2cm]{nonsmooth2}
+\includegraphics[height=4cm]{nonsmooth2}
 \caption{An iterative model with nonsmooth behavior yields 
 growing derivative values.}\label{fig:growingExample} 
 \end{figure}
@@ -503,7 +506,7 @@ do while time .lt. timeEnd
   time = time + timeStep
 end do  
 \end{lstlisting}
-\includegraphics[height=2.2cm]{nonsmooth3}
+\includegraphics[height=4cm]{nonsmooth3}
 \caption{An iterative model with nonsmooth behavior yields 
 oscillating derivative values.}\label{fig:oscillatingExample} 
 \end{figure}
@@ -519,10 +522,6 @@ of traces for different time steps.
 If a model already contains iterations, e.g. if we considered the time stepping 
 loops part of our example models, one will have to narrow the scope to 
 subtraces within the model. 
- 
-
-    
-
 
 % #########################################################################################
 \section{Examples}
@@ -530,36 +529,107 @@ A study on large model computation with  a setup of the MIT general circulation 
 is currently underway.  
 Here we want to illustrate the use of the tracing facility on three small examples.
 % -----------------------------------------------------------------------------------------
-\subsection{Loop Bounds}
+\subsection{Control Flow}
+Control flow decisions depending on active variables are illustrated in the example in 
+\reffig{fig:ControlFlow}.
 \begin{figure}
-\begin{lstlisting}
-        subroutine head(x,y)
-          double precision, dimension(2), intent(in) :: x
-          double precision, dimension(1), intent(out) :: y
-          integer i
-c$openad INDEPENDENT(x)
-          y(1)=x(1) 
-          do i=int(x(1)),int(x(2))+2
-            y(1)=y(1)*x(2)
-          end do
-c$openad DEPENDENT(y)
-        end subroutine
-\end{lstlisting}
+\lstinputlisting{Code/ControlFlow/head.prepped.f90}
+\caption{An example for control flow decisions depending in active variables}\label{fig:ControlFlow} 
 \end{figure} 
- 	
-
+Both the loop bounds and the branch condition depend on the active input.  
+The XML tracing elements representing structured control flow constructs are nested accordingly. 
+The \lstinline{<Cfval>} element preceding a \lstinline{</Branch>} indicates what the branch 
+condition evaluated to. Similarly, the \lstinline{<Cfval>} element preceding a \lstinline{</Loop>} 
+indicates the number of loop iterations performed.       
+The \lstinline{head} routine 
+is run at two  points [0.5,0.75] and [0.5,1.75] for the inputs [\lstinline{x1},\lstinline{x1}].
+For the first point the loop has three iterations, for the second one four. The condition in the loop body always evaluates to false for the first point and to true in the last three loop iteratrions for the second point. The output files are shown in \reffig{fig:ControlFlowOutput}. 
+\begin{figure}
+\begin{minipage}{.5\textwidth}
+\lstinputlisting{Code/ControlFlow/oad_tr_001.xml}
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\lstinputlisting{Code/ControlFlow/oad_tr_002.xml}
+\end{minipage}
+\caption{Output \lstinline{oad_tr_001.xml} (left) 
+and \lstinline{oad_tr_002.xml} (right) 
+generated for \reffig{fig:ControlFlow}}\label{fig:ControlFlowOutput}
+\end{figure}
+The structure may become more apparent if the xml file is viewed  
+with a browser such as firefox that has an appropriate style sheet for presenting xml files 
+and allows to collapse and expand an element and the contents nested inside. 
+% -----------------------------------------------------------------------------------------
+\subsection{Array Indices}\label{sec:ArrayIndex}
+It may not always be straightforward to determine which program variables 
+are being referenced, in particular if one uses array indices but the loop 
+boundaries do not depend on active variables. Consequently the trace will 
+also contain index values to help determine which data causes a change. 
+Such a case is shown in \reffig{fig:ArrayIndex}.
+\begin{figure}
+\lstinputlisting{Code/ArrayIndex/head.prepped.f90}
+\caption{An example for tracing array indices}\label{fig:ArrayIndex} 
+\end{figure} 
+We compute the \lstinline{head} routine at points [0.5,0.75] and [0.5,3.75].
+For the first point both calls to $\tan$ are in subdomain 0, for the second 
+\begin{figure}
+\begin{minipage}{.5\textwidth}
+\lstinputlisting{Code/ArrayIndex/oad_tr_001.xml}
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\lstinputlisting{Code/ArrayIndex/oad_tr_002.xml}
+\end{minipage}
+\caption{Output \lstinline{oad_tr_001.xml} (left) 
+and \lstinline{oad_tr_002.xml} (right) 
+generated for \reffig{fig:ArrayIndex}}\label{fig:ArrayIndexOutput}
+\end{figure}
+point the second call is in subdomain 1. Looking at the output shown in \reffig{fig:ArrayIndexOutput}
+we see that for each call to $\tan$ we also show the index of the active argument. 
+This allows to easily pinpoint changes for certain elements in large arrays.    
+% -----------------------------------------------------------------------------------------
+\subsection{Call Stack}
+In the output shown so far the listing of the line numbers and the 
+nesting of the respective XML elements provides some means of navigating the 
+tracing output. A natural higher level of XML element nesting would be 
+the subroutine. For that reason we also introduce subroutine calls into the trace. 
+The example in \reffig{fig:CallStack} shows routines \lstinline{foo} and \lstinline{bar}
+called within \lstinline{head}.
+\begin{figure}
+\lstinputlisting{Code/CallStack/head.prepped.f90}
+\caption{An example for tracing subroutine calls}\label{fig:ArrayIndex} 
+\end{figure} 
+We compute the \lstinline{head} routine at points 0.5 and 1.0. Because \lstinline{bar} 
+is called both within \lstinline{foo} and directly in \lstinline{head} it would be 
+helpfull to know the callstack at the point of a tracing difference. 
+The output shown in \reffig{fig:ArrayIndexOutput} has for better readability 
+been reformatted with \lstinline{xmlformat} \cite{xmlformat} and 
+indicates that the only change in the subdomain (third line from the bottom)
+is related to the call to \lstinline{bar} made directly in foo.
+\begin{figure}
+\begin{minipage}{.5\textwidth}
+\scriptsize
+\verbatimfile{Code/CallStack/oad_tr_001.fxml}
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\scriptsize
+\verbatimfile{Code/CallStack/oad_tr_002.fxml}
+\end{minipage}
+\caption{Output \lstinline{oad_tr_001.xml} (left) 
+and \lstinline{oad_tr_002.xml} (right) 
+generated for \reffig{fig:CallStack}}\label{fig:CallStackOutput}
+\end{figure}
+In the tracing output the name of the top level routine does not show up 
+since the only call to it is in the driver and the driver routine itself is not being transformed.
 % #########################################################################################
 \section{Implementation Detrails}\label{sec:implementation}
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \subsection{Analysis}\label{sec:analysis}
-  
-      
-
-
  
 The tool OpenAD \cite{openad} is the basis for the actual implementation. 
 It uses the activity analysis implemented in the OpenAnalysis \cite{oaWeb} library 
 to obtain the set of active variables. 
+The implementation follows the concepts of data being {\em varied} and {\em usefull}
+explained in \refsec{sec:ActivityAnalysis}. 
+To permit 
 
  
 
