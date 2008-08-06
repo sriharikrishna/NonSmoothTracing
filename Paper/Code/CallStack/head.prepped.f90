@@ -1,16 +1,14 @@
 subroutine foo(t)
-  double precision :: t
+  real :: t
   call bar(t)
 end subroutine
-
 subroutine bar(t)
-  double precision :: t
+  real :: t
   t=tan(t)
 end subroutine
-
 subroutine head(x,y) 
-  double precision :: x
-  double precision :: y
+  real :: x
+  real :: y
 !$openad INDEPENDENT(x)
   call foo(x)
   call bar(x)

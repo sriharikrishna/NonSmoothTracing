@@ -5,7 +5,6 @@ then
   echo "hg: n/a by $USER" > versionInfo.txt.new
 else
   echo -n "$(hg tip | grep changeset: | sed 's/changeset:[ ]*\(.*\):\(.*\)/hg:\1/'):$(hg id | sed 's/\([^ ].*\) \(.*\)/\1/')" > versionInfo.txt.new
-  echo " by $(echo $USER | sed 's/_/\\_/')" >> versionInfo.txt.new  
 fi
 diff versionInfo.txt.new versionInfo.txt > /dev/null
 if [ $? -ne 0 ]
@@ -23,7 +22,6 @@ then
   echo "hg: n/a by $USER" > $THISDIR/versionInfoOpenAD.txt.new
 else
   echo -n "$(hg tip | grep changeset: | sed 's/changeset:[ ]*\(.*\):\(.*\)/hg:\1/'):$(hg id | sed 's/\([^ ].*\) \(.*\)/\1/')" > $THISDIR/versionInfoOpenAD.txt.new
-  echo " by $(echo $USER | sed 's/_/\\_/')" >> $THISDIR/versionInfoOpenAD.txt.new
 fi
 cd $THISDIR
 diff versionInfoOpenAD.txt.new versionInfoOpenAD.txt > /dev/null
@@ -41,7 +39,6 @@ then
   echo "hg: n/a by $USER" > $THISDIR/versionInfoxaifBooster.txt.new
 else
   echo -n "$(hg tip | grep changeset: | sed 's/changeset:[ ]*\(.*\):\(.*\)/hg:\1/'):$(hg id | sed 's/\([^ ].*\) \(.*\)/\1/')" > $THISDIR/versionInfoxaifBooster.txt.new
-  echo " by $(echo $USER | sed 's/_/\\_/')" >> $THISDIR/versionInfoxaifBooster.txt.new
 fi
 cd $THISDIR
 diff versionInfoxaifBooster.txt.new versionInfoxaifBooster.txt > /dev/null

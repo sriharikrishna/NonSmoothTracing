@@ -1,6 +1,5 @@
 subroutine head(x,y) 
-  double precision :: x(2)
-  double precision :: y
+  real :: x(2),y
 !$openad INDEPENDENT(x)
   y=0.0
   do i=1,2

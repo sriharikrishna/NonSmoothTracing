@@ -1,6 +1,6 @@
 subroutine head(x1,x2,y)
-  double precision,intent(in) :: x1,x2
-  double precision,intent(out) :: y
+  real,intent(in) :: x1,x2
+  real,intent(out) :: y
   integer i
 !$openad INDEPENDENT(x1)
 !$openad INDEPENDENT(x2)

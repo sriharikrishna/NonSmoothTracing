@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\usepackage{verbatimfiles}
+\usepackage{wrapfig}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{listings}
@@ -8,6 +8,8 @@
 \usepackage{multirow}
 \usepackage{fancyhdr}
 \usepackage{relsize}
+\usepackage{moreverb}
+
 
 \usepackage[pdftex,usenames]{color}
 \usepackage[pdftex]{graphicx}  
@@ -28,6 +30,10 @@
 \setcounter{tocdepth}{6}
 
 % names and CS terms
+\newcommand{\adolc}{Adol-C}
+\newcommand{\openad}{OpenAD}
+\newcommand{\adifor}{Adifor}
+\newcommand{\xaif}{xaif}
 
 % math
 \newcommand{\R}{I\!\!R}
@@ -51,22 +57,21 @@
 \newcommand{\bmzero}{\mbox{\bf\em O}}
 
 % environments
-\newcommand{\code}[1]{{\tt{#1}}}
-\newcommand{\refcan}[1]{(C\ref{#1})}
 \newcommand{\refsec}[1]{{Sec.~\ref{#1}}} 
 \newcommand{\refsecBS}[1]{{Section~\ref{#1}}} 
 \newcommand{\reffig}[1]{{Fig.~\ref{#1}}} 
 \newcommand{\reffigBS}[1]{{Figure\ref{#1}}} 
 \newcommand{\reftab}[1]{{Table~\ref{#1}}} 
-\newcommand{\refalg}[1]{{Alg.~\ref{#1}}} 
-\newcommand{\refalgBS}[1]{{Algorithm~{#1}}} 
 \newcommand{\refeqn}[1]{{(\ref{#1})}} 
 \newcommand{\refdef}[1]{{Def.~(\ref{#1})}} 
+
+\let\verbatiminput=\verbatimtabinput
+\def\verbatimtabsize{4\relax}
 
 \title{A tracing facility for Nonsmooth Model Behavior}
 \author{J. Utke\\\\
         \small Preprint version: \input{versionInfo.txt} compiled for \\
-        \small OpenAD version: \input{versionInfoOpenAD.txt}\\
+        \small \openad\ version: \input{versionInfoOpenAD.txt}\\
         \small xaifBooster version: \input{versionInfoxaifBooster.txt}\\
 }
 \date{ }
@@ -80,7 +85,7 @@
 \begin{document}
 \maketitle
 \lstloadlanguages{Fortran,XML}
-\lstset{basicstyle=\footnotesize\tt, 
+\lstset{basicstyle=\small\tt, 
 	numbers=left, 
 	numberstyle=\scriptsize,
   	stepnumber=1, 
@@ -101,12 +106,14 @@ Griewank devotes an entire chapter in \cite{Gri00}
 to the scenario of applying an AD tool to cases without differentiability. 
 In practice one observes various cases where the derivatives computed by AD are useless 
 because their numerical values grow  beyond reasonable bounds \cite{tfs-delayed,tfs-chain} or even 
-become NaNs. 
+become \lstinline{NaN}s.\footnote{
+An IEEE floating point exception indicating ``not a number''.
+} 
 In the latter case one might have the option to let a suitable compiler generate 
 code to detect floating point exceptions to help locate the origin of the problem.
 The AD  tool ADIFOR \cite{adiforWeb} also has built-in  option to detect 
 such situations by adding checks to the generated code.   
-In the former case when no NaNs are created it is however very difficult to 
+In the former case when no \lstinline{NaN}s are created it is however very difficult to 
 detect what feature of the numerical model causes the derivative values to explode. 
 In the following we introduce a facility to trace the model computation and locate 
 certain programming constructs that have the potential to cause 
@@ -120,8 +127,8 @@ model has distinct representations for certain subdomains or the nonsmooth effec
 are an artifact of the numerical methods implemented in the model.
 In either case one needs to be concerned about the validity of the 
 derivative information and attempt to locate the problem and  find a remedy.  
-The situation with the disctinct subdomains is described to illustrate 
-certain aspects of using Adol-C in \cite{adolc} and we 
+The situation with the distinct subdomains is described to illustrate 
+certain aspects of using \adolc\  in \cite{adolc} and we 
 replicate it here in \reffig{fig:subdomains}. 
 \begin{figure}
 \centerline{\includegraphics[width=6cm]{nonsmooth1}}
@@ -136,11 +143,11 @@ following cases
 \item[P4] we are at a point where the model is not continuous
 \item[P5] we are at a point where the model is not defined
 \end{description}    
-For Adol-C the most critical question is to determine if a given execution trace 
+For \adolc\  the most critical question is to determine if a given execution trace 
 recorded for some point P0 may still be used for a different point P' or else 
 into which of the five categories  the point P' falls that would necessitate 
 a re-recording of the execution trace and indicate if the computed derivatives 
-may be valid only in the given direction. Adol-C itself provides only an answer 
+may be valid only in the given direction. \adolc\  itself provides only an answer 
 via a return code indicating the category. 
 It is able to do this by comparing the output of tests and certain intrinsics 
 that were recorded in the execution trace with the output these same tests and intrinsics 
@@ -154,11 +161,11 @@ trigger the assumption that one has left the subdomain in which smooth model beh
 can be assumed. 
 These {\em critical} programming constructs can be grouped as follows.
 \begin{description}
-\item[nonsmooth intrinsics] Some of the most obvious cases are \code{max}, \code{min}, and \code{fabs}.
+\item[nonsmooth intrinsics] Some of the most obvious cases are \lstinline{max}, \lstinline{min}, and \lstinline{fabs}.
 \item[conditional expressions] The model may compute values in different branches following a test 
 or a loop may have a different iteration count based on a termination test.
 \end{description}
-As done in Adol-C we aim at tracing the model behavior and detect any differences triggered 
+As done in \adolc\  we aim at tracing the model behavior and detect any differences triggered 
 by the programming constructs listed above that might represent nonsmooth model behavior.
 Obviously a tracing facility such as the one proposed here is most useful for 
 numerical models that have 
@@ -167,7 +174,7 @@ numerical models that have
 \item a relatively long execution time
 \end{itemize}
 such that a manual inspection of the model either by browsing the source code or 
-running a simulation in the debuger to observe certain values is too tedious.
+running a simulation in the debugger to observe certain values is too tedious.
 Clearly such a use also requires some restrictions on the information that is being 
 collected to reduce the amount of tracing data that has to be dealt with.
 
@@ -176,53 +183,61 @@ collected to reduce the amount of tracing data that has to be dealt with.
 \section{Usage}
 
 The source transformation that provides the tracing facility is implemented in the 
-OpenAD framework \cite{openad}. The website\\ 
-\centerline{\url{www.mcs.anl.gov/openad}}\\
+\openad\ framework \cite{openad}. The website\\[1ex] 
+\centerline{\url{www.mcs.anl.gov/openad}}\\[1ex]
 provides details on the downloading and building the tool chain. 
 
 % -----------------------------------------------------------------------------------------
 \subsection{One Minute Example}
-We assume a simple routine computing $y=f(x)=\tan(x)$ implemented by \lstinline{head}.
+We assume a simple routine, see \reffig{fig:OneMinute}(left), computing $y=f(x)=\tan(x)$ implemented by \lstinline{head}.
 \begin{figure}
-\lstinputlisting{Code/OneMinuteExample/head.f90}
-\caption{Simple example code}\label{fig:oneMinute}
+\begin{minipage}[t]{.48\linewidth}
+\lstinputlisting[frame=single]{Code/OneMinuteExample/head.f90}
+\end{minipage}
+\begin{minipage}[t]{.48\linewidth}
+\lstinputlisting[frame=single]{Code/OneMinuteExample/head.prepped.f90}
+\end{minipage}
+\caption{Simple example code (left), prepared for tracing (right)}\label{fig:OneMinute}
 \end{figure}
-We need to prepare the code for the activity analysis by specifying the indpendent variables
-(here \lstinline{x}) and the dependent variables (here \lstinline{y})
-\begin{figure}
-\lstinputlisting{Code/OneMinuteExample/head.prepped.f90}
-\caption{Augmented code from \reffig{fig:oneMinute}}\label{fig:oneMinutePrepped}
-\end{figure}
-In the following we assume the OpenAD environment has been set up as 
+We need to prepare the code for the activity analysis by specifying the independent variables
+(here \lstinline{x}) and the dependent variables 
+(here \lstinline{y}) shown in lines 4 and 6 of \reffig{fig:OneMinute}(right).
+In the following we assume the \openad\ environment has been set up as 
 described in \cite{userManual} Sect. 2.2.
 For this simple example we can use the  wrapper script\\[1ex]
 \hspace*{1cm}\lstinline{$OPENADROOT/bin/openad}\\[1ex] %$
-The directory should have been added to the \lstinline{PATH}. 
+The directory should have been added to the \lstinline{PATH}.
+All script options are shown when  it is invoked with the \lstinline{-h} flag. 
 It provides a simple recipe for the tracing transformation that we can use in 
-a straightforward case like this. When invoked like\\[1ex] 
-\hspace*{1cm}\lstinline{openad -m t head.prepped.f90}\\[1ex]
-it produces some progress output on the screen like this\\[1ex]
-\hspace*{1cm}\begin{minipage}{\textwidth}
-\small\verbatimfile{oneMinuteStatusOutput.txt}
-\vspace*{1ex}
-\end{minipage}
+a straightforward case like this by calling \\[1ex] 
+\hspace*{1cm}\lstinline{openad -c -m t head.prepped.f90}\\[1ex]
+%it produces some progress output like the one shown in \reffig{fig:oneMinuteStatusOutput}.
 The resulting fortran output is contained in a file called\\[1ex]
 \hspace*{1cm}\lstinline{head.prepped.xb.x2w.w2f.pp.f}\\[1ex] 
 and its contents is shown in \reffig{fig:OneMinuteTransformed}  
 \begin{figure}
-\lstinputlisting{Code/OneMinuteExample/head.prepped.xb.x2w.w2f.pp.f}
-\caption{Transformed code (fixed format) from input shown in \reffig{fig:oneMinutePrepped}}\label{fig:oneMinuteTransformed}
+\lstinputlisting[frame=single]{Code/OneMinuteExample/head.prepped.xb.x2w.w2f.pp.f}
+\caption{Transformed code (fixed format) from input shown in \reffig{fig:OneMinute}(left)}\label{fig:OneMinuteTransformed}
 \end{figure}
 In the transformed Fortran one finds two versions of the code, one is the original 
 on line 28 and one is augmented on lines 32--36. Which version is being run depends 
+%\begin{wrapfigure}{r}{.5\textwidth}
+%\begin{minipage}{.95\linewidth}
+%\scriptsize\verbatiminput{oneMinuteStatusOutput.txt}
+%\end{minipage}
+%\caption{Status messages from \lstinline{openad}.}\label{fig:oneMinuteStatusOutput}
+%\end{wrapfigure}
 on the value of the components of \lstinline{our_rev_mode} which is to be controled 
 by a driver that calls \lstinline{head(x,y)}.
-A simple such driver is shown in \reffig{fig:oneMinuteDriver}. 
-\begin{figure}
-\lstinputlisting{Code/OneMinuteExample/driver.f90}
-\caption{Driver routine for the transformed code  shown in \reffig{fig:oneMinuteTransformed}}\label{fig:oneMinuteDriver}
-\end{figure}
-On line 11 a generic initialization of the tracing environment is performed.  A First trace is 
+A simple such driver is shown in \reffig{fig:OneMinuteDriver}. 
+On line 11 a generic initialization 
+\begin{wrapfigure}{r}{.5\textwidth}
+\begin{minipage}{.98\linewidth}
+\lstinputlisting[frame=single]{Code/OneMinuteExample/driver.f90}
+\end{minipage}
+\caption{Driver routine for the transformed code  shown in \reffig{fig:OneMinuteTransformed}}\label{fig:OneMinuteDriver}
+\end{wrapfigure}
+of the tracing environment is performed.  A First trace is 
 started on line 12. The call to \lstinline{oad_trace_open} opens a file called 
 \lstinline{oad_tr_001.xml} and sets up the running mode \lstinline{oad_rev_mode} 
 referenced on lines 26 and 30 of \reffig{fig:OneMinuteTransformed}.
@@ -232,24 +247,29 @@ The \lstinline{openad} script links the required run time support files
 to the working directory and all files can be compiled with 
 a \lstinline{makefile} such as the one shown in \reffig{fig:OneMinuteMake}.
 \begin{figure}
-\hspace*{.5cm}\begin{minipage}{\textwidth}
-\scriptsize\verbatimfile{Code/OneMinuteExample/Makefile}
+\fbox{
+\begin{minipage}{.95\textwidth}
+\scriptsize
+\verbatiminput{Code/OneMinuteExample/Makefile}
+%\verbatimfile{Code/OneMinuteExample/Makefile}
 \end{minipage}
+}
 \caption{Contents of a \lstinline{makefile} to compile and link the example.}\label{fig:OneMinuteMake}.
 \end{figure}.
 
 The contents of the trace output files generated when running \lstinline{driver} 
 is shown in \reffig{fig:OneMinuteXMLOutput}.
 \begin{figure}
-\begin{minipage}{.5\textwidth}
-\lstinputlisting{Code/OneMinuteExample/oad_tr_001.xml}
+\begin{minipage}{.49\textwidth}
+\lstinputlisting[frame=single,numbers=left,xleftmargin=4ex,language=XML]{Code/OneMinuteExample/oad_tr_001.xml}
 \end{minipage}
-\begin{minipage}{.5\textwidth}
-\lstinputlisting{Code/OneMinuteExample/oad_tr_002.xml}
+\hspace*{1ex}
+\begin{minipage}{.46\textwidth}
+\lstinputlisting[frame=single,numbers=none,xleftmargin=0ex,language=XML]{Code/OneMinuteExample/oad_tr_002.xml}
 \end{minipage}
 \caption{Output \lstinline{oad_tr_001.xml} (left) 
 and \lstinline{oad_tr_002.xml} (right) 
-generated from \reffig{fig:oneMinuteDriver}}\label{fig:OneMinuteXMLOutput}
+generated from \reffig{fig:OneMinuteDriver}}\label{fig:OneMinuteXMLOutput}
 \end{figure}
 Clearly the tracing outputs are identical except for line 4 where we show the 
 different output for the respective smooth subdomain \lstinline{sd} at which the 
@@ -264,7 +284,7 @@ and if necessary also information about the arguments, see also \refsec{sec:Arra
 % -----------------------------------------------------------------------------------------
 \subsection{Detailled Usage}
 The transformation of the source code is performed in stages in the same fashion as 
-summarized in the OpenAD Manual \cite{userManual}, Sect. 2.5. 
+summarized in the \openad\ Manual \cite{userManual}, Sect. 2.5. 
 The differences in the tool chain are the choice of the transformation algorithm 
 in the xaifBooster component and the selection of the runTime library in connection with 
 the postprocessor templates. 
@@ -288,7 +308,7 @@ The transformation steps after this stage are as follows
 The numerical model is now given as an xaif file to which we apply the tracing transformation. 
 Conceptually, the tracing transformation shares the following aspects with other 
 AD-related transformations implemented in 
-OpenAD:
+\openad:
 \begin{itemize}
 \item redeclaration of program variables using a special, {\em active} type these variables 
 	have been determined to hold active values by the activity analysis.
@@ -298,7 +318,7 @@ OpenAD:
 \end{itemize}
 The transformation options associated with the tracing facility are as follows.
 {\scriptsize
-\verbatimfile{tracingAlgOpts.txt}
+\verbatiminput{tracingAlgOpts.txt}
 }
 As shown for instance for the example in \reffig{fig:OneMinuteTransformed} the 
 transformation generates two different versions of the input code on a per subroutine basis. 
@@ -314,15 +334,17 @@ can be found in\\[1ex]
 \hspace*{1cm}\lstinline{$OPENADROOT/runTimeSupport/simple/ad_template.trace.f} \\[1ex]%$
 The name of the template file can be specified to the postprocessor \lstinline{multi-pp.pl} using
 \lstinline{-f <template_file_name>} or specified in the source code inside each subroutine body using 
-the \lstinline{!$openad  XXX Template <template_file_name>} %$
-pragma. If nothing is specified the postprocessor expects a template file named \lstinline{ad_template.f} in the 
+a pragma of the following format. \\[1ex]
+\hspace*{1cm}\lstinline{!$openad  XXX Template <template_file_name>} \\[1ex]%$ 
+If nothing is specified the postprocessor expects a template file named \lstinline{ad_template.f} in the 
 current working directory.  \\[1ex]
-\hspace*{1cm}\lstinline{$OPENADROOT/runTimeSupport/simple/OAD_trace.f90} \\[1ex]%$ the module that contains 
+\item[{\tt OAD\_trace.f90:}] located in \lstinline{$OPENADROOT/runTimeSupport/simple/} % $
+is the module that contains 
 the routines used to generate the trace xml output. For instance related to the tracing of 
-the calls to the \lstinline{tan} intrinsic it contains a module procedure\\[1ex]
-\lstinputlisting[firstline=347,lastline=351]{Code/OneMinuteExample/OAD_trace.f90}
+the calls to the \lstinline{tan} intrinsic the module contains procedures such as the following.
+\lstinputlisting[firstline=347,lastline=351,numbers=none,xleftmargin=0ex,basicstyle=\scriptsize\tt]{Code/OneMinuteExample/OAD_trace.f90}
 The routines to be called directly by the user are discussed in \refsec{sec:DriverRoutine}.
-\item[{\tt w2f\_\_types.f90} and {\tt iaddr.c}:] the generic support files needed by most OpenAD transformed source code;
+\item[{\tt w2f\_\_types.f90} and {\tt iaddr.c}:] the generic support files needed by most \openad\ transformed source code;
 the files can be found in \\[1ex]
 \hspace*{1cm}\lstinline{$OPENADROOT/runTimeSupport/all/}%$
 \item[{\tt OAD\_active.f90} and {\tt OAD\_rev.f90}:] the definition for the active type and the state 
@@ -340,7 +362,8 @@ We assume some program logic (the {\em driver}) that initializes the input varia
 computation itself and then processes the output values. 
 That driver logic  is the natural location for orchestrating the tracing of the model. 
 All the required elements to be added to the driver logic are already given in the example 
-in \reffig{fig:OneMinuteDriver}. The required modules to be used are \lstinline{OAD_active}, 
+in \reffig{fig:OneMinuteDriver}. The required modules to be \lstinline{USE}d 
+are \lstinline{OAD_active} and 
 \lstinline{OAD_trace}. A third module \lstinline{OAD_rev} is used by \lstinline{OAD_trace}
 internally. The routines to be called by user in the driver are as follows.
 \begin{description}
@@ -362,14 +385,14 @@ a subset of outputs $\bmy$.
 In a source transformation context the activity is determined by a data flow 
 analysis which. Typically the dependence of a given value on $\bmx$ is 
 referred to as being {\em varied} while $\bmy$ depending on 
-a certain value is referred to as that value being {\em usefull}.   
+a certain value is referred to as that value being {\em useful}.   
 In general we assume a model of the form 
 \[
 (\bmy,\bmq)=\bmf(\bmx,\bmp): \R^{n\times s}\mapsto \R^{m\times t}
 \]
 The inputs $\bmp$ and the outputs $\bmq$  are assumed to be of no interest 
 for the derivative computation. Consequently any values that only depend on
-$\bmp$ or only affect the $\bmq$ are not ative values and  
+$\bmp$ or only affect the $\bmq$ are not active values and  
 under certain conditions of no interest to the trace we need to compare against. 
 It is important to note that this restriction is specific to the AD context 
 and is the distinguishing factor that separates our  approach  
@@ -386,21 +409,16 @@ aliasing of variables there is a certain overestimate of the active value set.
 The overestimate could in theory be reduced by augmenting the static analysis 
 with run time data. 
 Such runtime augmentation has,  however,  the same principal problem already 
-explained before for the usage of the Adol-C trace. 
+explained before for the usage of the \adolc\  trace. 
 One will always have to check 
 if the runtime data are still valid once the point of evaluation moves. 
 In other words it would be subject to the very same nonsmooth model behavior we are trying to detect.
-
 On the other hand it is clear that the activity  analysis requiring a value 
-to be both varied and usefull can underestimate 
+to be both varied and useful can underestimate 
 the values for which tracing may be desired. 
-The example in \reffig{fig:missedThis} illustrates the case of an active value  $a$
-being part of the computation of some value $p$ that itself is not active presumably 
-because it is ``varied'' but not ``usefull''.
-Then $v$ is used in an if-condition that changes the path through the control flow 
-graph for some  subsequent computation of active values.
-\begin{figure}
-\begin{lstlisting}
+\begin{wrapfigure}{r}{.5\textwidth}
+\begin{minipage}{.95\linewidth}
+\begin{lstlisting}[frame=single]
 v = t + sin(a) 
 if ( v .gt. 0.3 )
 then 
@@ -410,14 +428,20 @@ else
 end if 
 ...
 \end{lstlisting}
-\caption{A control flow decision depening on a nonactive variable}\label{fig:missedThis} 
-\end{figure}
+\end{minipage}
+\caption{A control flow decision depending on a nonactive variable}\label{fig:missedThis} 
+\end{wrapfigure}
+The example in \reffig{fig:missedThis} illustrates the case of an active value  $a$
+being part of the computation of some value $p$ that itself is not active presumably 
+because it is ``varied'' but not ``useful''.
+Then $v$ is used in an if-condition that changes the path through the control flow 
+graph for some  subsequent computation of active values.
 Given this scenario one might arrive at various conclusions. 
 
 Rather than tracing critical constructs only for  active values 
 one could devise an extension to the notion of activity using the following 
 definition.\\
-{\em Definition: } A value is called {\em indirectly usefull} 
+{\em Definition: } A value is called {\em indirectly useful} 
 if an address computation yielding active values depends on it.\\
 Here we use the term  address computation to cover the typical notion of 
 computing addresses in the program's data segment but also to compute 
@@ -427,27 +451,29 @@ An example for the former kind of address computation is given in
 \reffig{fig:addressComp} where an active value in variable a is used to 
 determine an index i into a lookup table t which then is used in 
 subsequent active computations.
-\begin{figure}
-\begin{lstlisting}
+\begin{wrapfigure}{r}{.5\textwidth}
+\begin{minipage}{.95\linewidth}
+\begin{lstlisting}[frame=single]
 i = int(a) 
 a = a * t(i)
 \end{lstlisting}
+\end{minipage}
 \caption{An address computation into a lookup table impacting the subsequent computation}\label{fig:addressComp} 
-\end{figure}
-Unfortunately the definition of ``indirectly usefull'' cannot be directly used in a 
+\end{wrapfigure}
+Unfortunately the definition of ``indirectly useful'' cannot be directly used in a 
 data flow analysis engine. 
 
 An alternative would be to consider tracing of critical constructs for all varied values. 
 Clearly, this will increase the generated output significantly by including much 
 of the ancillary model logic (the aforementioned debugging, monitoring etc.) which 
 the activity analysis is aiming to exclude. 
-Incidentally, in Adol-C this approach is implicitly enforced by the compiler. 
-Adol-C uses a specific  
+Incidentally, in \adolc\ this approach is implicitly enforced by the compiler. 
+\adolc\ uses a specific  
 active type for active values and they may not be used to 
 compute plain floating point values unless one 
 explicitly deactivates the value first. 
 
-Given the difficulty of implementing an analysis to determine indirectly usefull values 
+Given the difficulty of implementing an analysis to determine indirectly useful values 
 on the one hand and the large overhead of tracing all varied values we 
 compromise with a limited extension to the notion of active variables by tracing  
 all expressions in control flow constructs and address computations directly involving active values
@@ -471,42 +497,55 @@ it may well originate with an erroneous implementation of a numerical method.
 A simple example should illustrate how oscillating derivatives and the growth 
 of the amplitude might be related to switching between smooth subdomains. 
 Consider an iteration internal to the model that computes some physical state 
-on a discretized domain but because of a boundary condition the state value is 
+on a discretized domain but because of a condition the state value is 
 forced to attain another value. For example one might think of a heating process involving 
-a phase change and the temperature of the material is forced down to a certain ambient 
-value on the boundary of the model domain. 
-In the iterative process one first observes a smooth rise in temperature until the 
+a phase change and the temperature \lstinline{T(0)} of a 
+material is forced down to a certain ambient 
+value \lstinline{bT} on the boundary of the model domain while 
+the interior temperature \lstinline{T(i)} with \lstinline{i}$>0$ is not directly forced.  
+Over the time steps  one first observes a smooth rise in \lstinline{T} 
+until the 
 regime that governs the phase change triggers a nonsmooth behavior. 
-The situtation is illustrated in \reffig{fig:growingExample}.
+The situation is illustrated in \reffig{fig:growingExample}.
 \begin{figure}
-\begin{lstlisting}
-do while time .lt. timeEnd
+\begin{minipage}{.48\textwidth}
+\begin{lstlisting}[frame=single,numbers=none,xleftmargin=0ex]
+do while time<timeE
   call computeTemp(T)
-  if (T(border) .gt. fixedBorderTemp + delta)  then 
-    T(border) = fixedBorderTemp 
+  if (T(0)>bT+delta) then 
+    T(0) = bT 
   end if
-  time = time + timeStep
+  time = time + step
 end do  
 \end{lstlisting}
-\includegraphics[height=4cm]{nonsmooth2}
+\end{minipage}
+\hfill
+\begin{minipage}{.4\textwidth}
+\includegraphics[width=.8\linewidth]{nonsmooth2}
+\end{minipage}
 \caption{An iterative model with nonsmooth behavior yields 
 growing derivative values.}\label{fig:growingExample} 
 \end{figure}
 An oscillation of the derivative values can originate for example from 
 switching between two subdomains as depicted in  \reffig{fig:oscillatingExample}.
 \begin{figure}
-\begin{lstlisting}
-do while time .lt. timeEnd
-  if ( a .gt. a\_critical ) 
+\begin{minipage}{.48\textwidth}
+\begin{lstlisting}[frame=single,numbers=none,xleftmargin=0ex]
+do while time<timeE
+  if (a>aCrit) 
   then
-     a=a+update\_for\_f1(a)
+     a=a+updF1(a)
   else 	
-     a=a+update\_for\_f2(a)
+     a=a+updF2(a)
   end if
-  time = time + timeStep
+  time=time+step
 end do  
 \end{lstlisting}
-\includegraphics[height=4cm]{nonsmooth3}
+\end{minipage}
+\hfill
+\begin{minipage}{.4\textwidth}
+\includegraphics[width=\linewidth]{nonsmooth3}
+\end{minipage}
 \caption{An iterative model with nonsmooth behavior yields 
 oscillating derivative values.}\label{fig:oscillatingExample} 
 \end{figure}
@@ -521,7 +560,7 @@ outside of the ``core'' model which we trace and this implies a comparison
 of traces for different time steps.  
 If a model already contains iterations, e.g. if we considered the time stepping 
 loops part of our example models, one will have to narrow the scope to 
-subtraces within the model. 
+sub-traces within the model. 
 
 % #########################################################################################
 \section{Examples}
@@ -532,24 +571,27 @@ Here we want to illustrate the use of the tracing facility on three small exampl
 \subsection{Control Flow}
 Control flow decisions depending on active variables are illustrated in the example in 
 \reffig{fig:ControlFlow}.
-\begin{figure}
-\lstinputlisting{Code/ControlFlow/head.prepped.f90}
+Both the loop bounds and the branch condition 
+\begin{wrapfigure}{r}{.5\textwidth}
+\begin{minipage}{.96\linewidth}
+\lstinputlisting[frame=single]{Code/ControlFlow/head.prepped.f90}
+\end{minipage}
 \caption{An example for control flow decisions depending in active variables}\label{fig:ControlFlow} 
-\end{figure} 
-Both the loop bounds and the branch condition depend on the active input.  
+\end{wrapfigure} 
+depend on the active input.  
 The XML tracing elements representing structured control flow constructs are nested accordingly. 
 The \lstinline{<Cfval>} element preceding a \lstinline{</Branch>} indicates what the branch 
 condition evaluated to. Similarly, the \lstinline{<Cfval>} element preceding a \lstinline{</Loop>} 
 indicates the number of loop iterations performed.       
 The \lstinline{head} routine 
 is run at two  points [0.5,0.75] and [0.5,1.75] for the inputs [\lstinline{x1},\lstinline{x1}].
-For the first point the loop has three iterations, for the second one four. The condition in the loop body always evaluates to false for the first point and to true in the last three loop iteratrions for the second point. The output files are shown in \reffig{fig:ControlFlowOutput}. 
+For the first point the loop has three iterations, for the second one four. The condition in the loop body always evaluates to false for the first point and to true in the last three loop iterations for the second point. The output files are shown in \reffig{fig:ControlFlowOutput}. 
 \begin{figure}
-\begin{minipage}{.5\textwidth}
-\lstinputlisting{Code/ControlFlow/oad_tr_001.xml}
+\begin{minipage}[t]{.48\textwidth}
+\lstinputlisting[frame=single]{Code/ControlFlow/oad_tr_001.xml}
 \end{minipage}
-\begin{minipage}{.5\textwidth}
-\lstinputlisting{Code/ControlFlow/oad_tr_002.xml}
+\begin{minipage}[t]{.48\textwidth}
+\lstinputlisting[frame=single]{Code/ControlFlow/oad_tr_002.xml}
 \end{minipage}
 \caption{Output \lstinline{oad_tr_001.xml} (left) 
 and \lstinline{oad_tr_002.xml} (right) 
@@ -560,43 +602,49 @@ with a browser such as firefox that has an appropriate style sheet for presentin
 and allows to collapse and expand an element and the contents nested inside. 
 % -----------------------------------------------------------------------------------------
 \subsection{Array Indices}\label{sec:ArrayIndex}
-It may not always be straightforward to determine which program variables 
-are being referenced, in particular if one uses array indices but the loop 
-boundaries do not depend on active variables. Consequently the trace will 
-also contain index values to help determine which data causes a change. 
-Such a case is shown in \reffig{fig:ArrayIndex}.
-\begin{figure}
-\lstinputlisting{Code/ArrayIndex/head.prepped.f90}
-\caption{An example for tracing array indices}\label{fig:ArrayIndex} 
-\end{figure} 
-We compute the \lstinline{head} routine at points [0.5,0.75] and [0.5,3.75].
-For the first point both calls to $\tan$ are in subdomain 0, for the second 
-\begin{figure}
-\begin{minipage}{.5\textwidth}
-\lstinputlisting{Code/ArrayIndex/oad_tr_001.xml}
+\begin{wrapfigure}[10]{r}{.5\textwidth}
+\vspace*{-1cm}
+\begin{minipage}{.96\linewidth}
+\lstinputlisting[frame=single]{Code/ArrayIndex/head.prepped.f90}
 \end{minipage}
+\caption{An example for tracing array indices in select intrinsics}\label{fig:ArrayIndex} 
+\end{wrapfigure} 
+\begin{figure}
 \begin{minipage}{.5\textwidth}
-\lstinputlisting{Code/ArrayIndex/oad_tr_002.xml}
+\lstinputlisting[frame=single]{Code/ArrayIndex/oad_tr_001.xml}
+\end{minipage}
+\begin{minipage}{.46\textwidth}
+\lstinputlisting[frame=single,numbers=none,xleftmargin=2ex]{Code/ArrayIndex/oad_tr_002.xml}
 \end{minipage}
 \caption{Output \lstinline{oad_tr_001.xml} (left) 
 and \lstinline{oad_tr_002.xml} (right) 
 generated for \reffig{fig:ArrayIndex}}\label{fig:ArrayIndexOutput}
 \end{figure}
+It may not always be straightforward to determine which program variables 
+are being referenced, in particular if one uses array indices but the loop 
+boundaries do not depend on active variables. Consequently the trace will 
+also contain index values to help determine which data causes a change. 
+Such a case is shown in \reffig{fig:ArrayIndex}.
+We compute the \lstinline{head} routine at points [0.5,0.75] and [0.5,3.75].
+For the first point both calls to $\tan$ are in subdomain 0, for the second 
 point the second call is in subdomain 1. Looking at the output shown in \reffig{fig:ArrayIndexOutput}
 we see that for each call to $\tan$ we also show the index of the active argument. 
 This allows to easily pinpoint changes for certain elements in large arrays.    
 % -----------------------------------------------------------------------------------------
 \subsection{Call Stack}
 In the output shown so far the listing of the line numbers and the 
-nesting of the respective XML elements provides some means of navigating the 
+nesting of the 
+\begin{wrapfigure}{r}{.5\textwidth}
+\begin{minipage}{.96\linewidth}
+\lstinputlisting[frame=single]{Code/CallStack/head.prepped.f90}
+\end{minipage}
+\caption{An example for tracing subroutine calls}\label{fig:CallStack} 
+\end{wrapfigure} 
+respective XML elements provides some means of navigating the 
 tracing output. A natural higher level of XML element nesting would be 
 the subroutine. For that reason we also introduce subroutine calls into the trace. 
 The example in \reffig{fig:CallStack} shows routines \lstinline{foo} and \lstinline{bar}
 called within \lstinline{head}.
-\begin{figure}
-\lstinputlisting{Code/CallStack/head.prepped.f90}
-\caption{An example for tracing subroutine calls}\label{fig:ArrayIndex} 
-\end{figure} 
 We compute the \lstinline{head} routine at points 0.5 and 1.0. Because \lstinline{bar} 
 is called both within \lstinline{foo} and directly in \lstinline{head} it would be 
 helpfull to know the callstack at the point of a tracing difference. 
@@ -605,14 +653,18 @@ been reformatted with \lstinline{xmlformat} \cite{xmlformat} and
 indicates that the only change in the subdomain (third line from the bottom)
 is related to the call to \lstinline{bar} made directly in foo.
 \begin{figure}
-\begin{minipage}{.5\textwidth}
+\fbox{
+\begin{minipage}{.45\textwidth}
 \scriptsize
-\verbatimfile{Code/CallStack/oad_tr_001.fxml}
+\verbatiminput{Code/CallStack/oad_tr_001.fxml}
 \end{minipage}
-\begin{minipage}{.5\textwidth}
+}
+\fbox{
+\begin{minipage}{.45\textwidth}
 \scriptsize
-\verbatimfile{Code/CallStack/oad_tr_002.fxml}
+\verbatiminput{Code/CallStack/oad_tr_002.fxml}
 \end{minipage}
+}
 \caption{Output \lstinline{oad_tr_001.xml} (left) 
 and \lstinline{oad_tr_002.xml} (right) 
 generated for \reffig{fig:CallStack}}\label{fig:CallStackOutput}
@@ -620,25 +672,51 @@ generated for \reffig{fig:CallStack}}\label{fig:CallStackOutput}
 In the tracing output the name of the top level routine does not show up 
 since the only call to it is in the driver and the driver routine itself is not being transformed.
 % #########################################################################################
-\section{Implementation Detrails}\label{sec:implementation}
+\section{Implementation Details}\label{sec:implementation}
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \subsection{Analysis}\label{sec:analysis}
  
-The tool OpenAD \cite{openad} is the basis for the actual implementation. 
+The tool \openad\ \cite{openad} is the basis for the actual implementation. 
 It uses the activity analysis implemented in the OpenAnalysis \cite{oaWeb} library 
 to obtain the set of active variables. 
-The implementation follows the concepts of data being {\em varied} and {\em usefull}
+The implementation follows the concepts of data being {\em varied} and {\em useful}
 explained in \refsec{sec:ActivityAnalysis}. 
-To permit 
-
- 
-
-
-
+To permit a larger scope of variables being traced we can designate variables only 
+by their {\em varied} status by calling the \lstinline{whirl2xaif} transformation stage 
+with the \lstinline{-v} flag. This flag triggers a modified data flow analysis. 
+Because this is not one of the common recipes the option is not provided by 
+the \lstinline{openad} script and instead one would typically use a makefile 
+for the individual transformation steps as explained in  \cite{userManual}, Sect. 2.5.
       
 % -----------------------------------------------------------------------------------------
 \subsection{Coverage}
+\begin{description}
+\item[Control FLow Constructs:] For structured control flow  loops and branches are being traced 
+and for each construct the iteration count or the condition value, respectively, is being reported. 
+For general, unstructured control flow no such output is being created. In practice 
+it would require tracing entrance and exit of basic blocks by some identifier such as the line number
+and this is currently not implemented.
+\item[intrinsics:] The following intrinsics trigger tracing output.
+\begin{description}
+\item[abs] if the argument value is positive \lstinline{v=}$+$ else \lstinline{v=}$-$
+\item[division] if the denominator is positive \lstinline{d=}$+$ else \lstinline{d=}$-$   
+\item[ceiling, floor, int, nint, modulo] the resulting value
+\item[max] the maximal argument
+\item[min] the minimal argument
+\item[sign] if the sign of the first argument changed \lstinline{d=}$+$ else \lstinline{d=}$-$
+\item[tan] identifying the subdomain as \lstinline{sd=}$\lfloor\frac{x+\pi/2)}{\pi}\rfloor$ 
+\end{description}
+\end{description}
 
+% -----------------------------------------------------------------------------------------
+\subsection{Installation}
+Because the algorithm is integrated into \openad\ 
+one can follow the installation and build instructions given on the \openad\ website \cite{openadWeb}.
+The website also contains instructions how to contribute to the \openad\ source.
+To rebuild this document from the \LaTeX sources requires the \openad\ environment to be 
+set (see \cite{userManual} Sect. 2.2)  because 
+the examples are being transformed and run as part of the build process. 
+ 
 % #########################################################################################
 \section*{Acknowledgments}
 Utke was supported by the Mathematical, Information, and
