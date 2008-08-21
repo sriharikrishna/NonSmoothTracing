@@ -30,7 +30,7 @@
 \setcounter{tocdepth}{6}
 
 % names and CS terms
-\newcommand{\adolc}{Adol-C}
+\newcommand{\adolc}{\mbox{Adol-C}}
 \newcommand{\openad}{OpenAD}
 \newcommand{\adifor}{Adifor}
 \newcommand{\xaif}{xaif}
@@ -284,7 +284,7 @@ is \lstinline{sd=}$k$ with integer $k=\lfloor\frac{x+\pi/2)}{\pi}\rfloor$, and i
 example the change in the \lstinline{sd} value  indicates that we moved from one smooth 
 subdomain to another. 
 We note that the subdomain is computed when the intrinsic is called. Lines 2 and 3 
-are generated separately before the call, in order to allow generation of line number information 
+are generated separately before the call, in order to allow the generation of line number information 
 and, if necessary,  information about the arguments; see also \refsec{sec:ArrayIndex}.
 
 % -----------------------------------------------------------------------------------------
@@ -316,7 +316,7 @@ AD-related transformations implemented in
 \openad.
 \begin{itemize}
 \item Redeclaration of program variables using a special, {\em active} type these variables 
-	have been determined by the activity analysis to hold active values.
+	have been determined by the activity analysis to hold active values
 \item Transformation associated with this type change, for instance as  applied to 
 	calls to black-box subroutines
 \item Augmentation of the control flow graph, for instance to be able to count loop iterations
@@ -418,7 +418,7 @@ Our approach relies on compile time activity analysis to determine the active va
 and source transformation to augment the critical programming constructs by 
 routines that generate the trace. 
 Because of conservative assumptions regarding the 
-aliasing of variables there is a certain overestimate of the active value set. 
+aliasing of variables, there is a certain overestimate of the active value set. 
 The overestimate could in theory be reduced by augmenting the static analysis 
 with runtime data. 
 Such runtime augmentation has,  however,  the same principal problem as does the use
@@ -458,13 +458,13 @@ definition.\\
 {\bf\em  Definition: } A value is called {\em indirectly useful} 
 if it is used in an address computation that impacts 
 the  computation of active values.\\
-Here we use the term  address computation to cover the typical notion of 
+Here we use the term  ``address computation'' not only  to cover the typical notion of 
 computing addresses in the program's data segment but also to compute 
 addresses in the programs text segment determining the next instruction. 
-The instruction address computation is already illustrated by \reffig{fig:missedThis}
+The instruction address computation is already illustrated by \reffig{fig:missedThis}.
 An example for the former kind of address computation is given in 
-\reffig{fig:addressComp} where an active value in variable a is used to 
-determine an index i into a lookup table t which then is used in 
+\reffig{fig:addressComp}, where an active value in variable a is used to 
+determine an index i into a lookup table t, which then is used in 
 subsequent active computations.
 Unfortunately the definition of ``indirectly useful'' 
 \begin{wrapfigure}{r}{.5\textwidth}
@@ -579,7 +579,7 @@ subtraces within the model.
 
 % #########################################################################################
 \section{Examples}
-A study of a large model computation with  the MIT general circulation model 
+A study of a large computation with  the MIT general circulation model 
 is under way.  
 Here we illustrate the use of the tracing facility on three small examples.
 % -----------------------------------------------------------------------------------------
@@ -643,7 +643,7 @@ boundaries do not depend on active variables. Consequently the trace will
 also contain index values to help determine which data causes a change. 
 Such a case is shown in \reffig{fig:ArrayIndex}.
 We compute the \lstinline{head} routine at points [0.5,0.75] and [0.5,3.75].
-For the first point both calls to $\tan$ are in subdomain 0, for the second 
+For the first point both calls to $\tan$ are in subdomain 0; for the second 
 point the second call is in subdomain 1. Looking at the output shown in \reffig{fig:ArrayIndexOutput},
 we see that for each call to $\tan$ we also show the index of the active argument. 
 This allows us to easily pinpoint changes for certain elements in large arrays.    
@@ -714,10 +714,10 @@ While the prinicpal mechanism discussed here is language independent,
 the tracing trasnformation in the  
 the language dependent parts of the OpenAD toolchain have been implemented only for Fortran. 
 \begin{description}
-\item[Control FLow Constructs:] For structured control flow  loops and branches are being traced; 
+\item[Control FLow Constructs:] For structured control flow,  loops and branches are being traced; 
 for each construct the iteration count or the condition value is being reported. 
 For general, unstructured control flow no such output is being created. In practice 
-it would require tracing the entrance and exit of basic blocks by some identifier such as the line number
+it would require tracing the entrance and exit of basic blocks by some identifier such as the line number,
 and this feature is currently not implemented.
 \item[intrinsics:] The following intrinsics trigger tracing output.
 \begin{description}
