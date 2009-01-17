@@ -24,6 +24,12 @@ ifndef OPENADROOT
 $(error "OpenAD environment not set")
 endif
 
+ifdef NOFORCE
+FORCE=
+else
+FORCE=FORCE
+endif
+
 $(TARGET).pdf : $(TARGET).aux $(TARGET).blg $(TARGET).bbl
 # run it twice
 	pdflatex $(TARGET)
@@ -32,13 +38,13 @@ $(TARGET).pdf : $(TARGET).aux $(TARGET).blg $(TARGET).bbl
 extraReqs: $(EXTRAREQS)
 	echo $(EXTRAREQS)
 
-versionInfo.txt : FORCE 
+versionInfo.txt versionInfoOpenAD.txt : $(FORCE) 
 	./createVersionInfo.sh
 
-tracingAlgOpts.txt : FORCE
+tracingAlgOpts.txt : $(FORCE)
 	./createOptionsOuput.sh 
 
-oneMinuteStatusOutput.txt : FORCE
+oneMinuteStatusOutput.txt : $(FORCE)
 	./createOneMinuteOutput.sh
 
 Code/OneMinuteExample/oad_tr_001.xml Code/OneMinuteExample/oad_tr_002.xml : 

@@ -73,12 +73,14 @@
 
 \title{A Tracing Facility for Nonsmooth Model Behavior}
 \author{J. Utke\\\\
-\scriptsize Preprint \input{versionInfo.txt} \\
+\scriptsize draft \input{versionInfo.txt} \\  
 \scriptsize compiled on \today\ with \\
-\begin{minipage}{3cm}
+\framebox{
+\begin{minipage}{6.5cm}
 \tiny
 \verbatiminput{versionInfoOpenAD.txt}
 \end{minipage}
+}
 }
 \date{ } 
 
@@ -217,7 +219,7 @@ The environment setup adds this directory to the \lstinline{PATH}.
 All script options are shown when it is invoked with the \lstinline{-h} flag. 
 It provides a simple recipe for the tracing transformation that we can use in 
 a straightforward case like this by calling %\\[1ex]
-\begin{wrapfigure}[24]{r}{.5\textwidth}
+\begin{wrapfigure}[25]{r}{.5\textwidth}
 \begin{minipage}{.98\linewidth}
 \lstinputlisting[frame=single]{Code/OneMinuteExample/driver.f90}
 \end{minipage}
@@ -279,7 +281,7 @@ is shown in \reffig{fig:OneMinuteXMLOutput}.
 \end{minipage}
 \caption{Output \lstinline{oad_tr_001.xml} (left) 
 and \lstinline{oad_tr_002.xml} (right) 
-generated from \reffig{fig:OneMinuteDriver}}\label{fig:OneMinuteXMLOutput}
+generated from running the driver in \reffig{fig:OneMinuteDriver}}\label{fig:OneMinuteXMLOutput}
 \end{figure}
 Clearly the tracing outputs are identical except for line 4, where we show the 
 different output for the respective smooth subdomain \lstinline{sd} at which the 
@@ -325,10 +327,11 @@ AD-related transformations implemented in
 	calls to black-box subroutines
 \item Augmentation of the control flow graph, for instance to be able to count loop iterations
 \end{itemize}
+The source code for the transformation can be found in \lstinline{inc} and \lstinline{src} under \\[1ex]   
+\hspace*{.3cm}\lstinline{$OPENADROOT/xaifBooster/algorithms/TraceDiff} \\[1ex]%$
+with the top level  driver routine being in \lstinline{driver/oadDriver.cpp}. 
 The transformation options associated with the tracing facility are as follows.
-{\scriptsize
-\verbatiminput{tracingAlgOpts.txt}
-}
+{\scriptsize \verbatiminput{tracingAlgOpts.txt}}
 As shown in \reffig{fig:OneMinuteTransformed}, the 
 transformation generates two versions of the input code on a per subroutine basis. 
 The first one is essentially the input containing only changes related to the 
@@ -468,9 +471,7 @@ addresses in the programs text segment determining the next instruction.
 The instruction address computation is already illustrated by \reffig{fig:missedThis}.
 An example for the former kind of address computation is given in 
 \reffig{fig:addressComp}, where an active value in variable a is used to 
-determine an index i into a lookup table t, which then is used in 
-subsequent active computations.
-Unfortunately the definition of ``indirectly useful'' 
+determine an index \lstinline{i} into a lookup table t,
 \begin{wrapfigure}{r}{.5\textwidth}
 \begin{minipage}{.95\linewidth}
 \begin{lstlisting}[frame=single]
@@ -480,7 +481,9 @@ a = a * t(i)
 \end{minipage}
 \caption{An address computation into a lookup table impacting the subsequent computation}\label{fig:addressComp} 
 \end{wrapfigure}
-cannot be readily translated  into a data flow analysis and requires research that goes beyond the scope of this paper.   
+which then is used in 
+subsequent active computations.
+Unfortunately the definition of ``indirectly useful'' cannot be readily translated  into a data flow analysis and requires research that goes beyond the scope of this paper.   
 
 An alternative is  to  trace critical constructs for all varied values. 
 Clearly, this will increase the generated output significantly by including much 
@@ -588,20 +591,17 @@ is under way.
 Here we illustrate the use of the tracing facility on three small examples.
 % -----------------------------------------------------------------------------------------
 \subsection{Control Flow}
-\begin{wrapfigure}[29]{r}{.5\textwidth}
-\vspace*{-1.2cm}
-\begin{minipage}{.96\linewidth}
+\begin{figure}
+\begin{minipage}{.48\linewidth}
 \lstinputlisting[frame=single]{Code/ControlFlow/head.prepped.f90}
 \end{minipage}
-\caption{Example for control flow decisions depending on active variables}\label{fig:ControlFlow} 
-\vspace*{5ex}
-\begin{minipage}{.96\linewidth}
+\begin{minipage}{.48\linewidth}
 \lstinputlisting[frame=single]{Code/ArrayIndex/head.prepped.f90}
 \end{minipage}
-\caption{Example for tracing array indices in select intrinsics}\label{fig:ArrayIndex} 
-\end{wrapfigure} 
+\caption{Example for control flow decisions depending on active variables (left); example for tracing array indices in select intrinsics (right)}\label{fig:ControlFlowArrayIndex} 
+\end{figure} 
 Control flow decisions depending on active variables are illustrated in the example in 
-\reffig{fig:ControlFlow}.
+\reffig{fig:ControlFlowArrayIndex}(left).
 Both the loop bounds and the branch condition 
 depend on the active input.  
 The XML tracing elements representing structured control flow constructs are nested accordingly. 
@@ -623,7 +623,7 @@ loop body always evaluates to false for the first point and to true in the last 
 \end{minipage}
 \caption{Output \lstinline{oad_tr_001.xml} (left) 
 and \lstinline{oad_tr_002.xml} (right) 
-generated for \reffig{fig:ControlFlow}}\label{fig:ControlFlowOutput}
+generated for \reffig{fig:ControlFlowArrayIndex}(left)}\label{fig:ControlFlowOutput}
 \end{figure}
 The structure may become more apparent if the xml file is viewed  
 with a browser such as Firefox that has an appropriate style sheet for presenting xml files 
@@ -639,13 +639,13 @@ and allows an element and the contents nested inside to collapse and expand.
 \end{minipage}
 \caption{Output \lstinline{oad_tr_001.xml} (left) 
 and \lstinline{oad_tr_002.xml} (right) 
-generated for \reffig{fig:ArrayIndex}}\label{fig:ArrayIndexOutput}
+generated for \reffig{fig:ControlFlowArrayIndex}(right)}\label{fig:ArrayIndexOutput}
 \end{figure}
 It may not always be straightforward to determine which program variables 
 are being referenced, in particular if one uses array indices but the loop 
 boundaries do not depend on active variables. Consequently the trace will 
 also contain index values to help determine which data causes a change. 
-Such a case is shown in \reffig{fig:ArrayIndex}.
+Such a case is shown in \reffig{fig:ControlFlowArrayIndex}(right).
 We compute the \lstinline{head} routine at points [0.5,0.75] and [0.5,3.75].
 For the first point both calls to $\tan$ are in subdomain 0; for the second 
 point the second call is in subdomain 1. Looking at the output shown in \reffig{fig:ArrayIndexOutput},
@@ -653,13 +653,13 @@ we see that for each call to $\tan$ we also show the index of the active argumen
 This allows us to easily pinpoint changes for certain elements in large arrays.    
 % -----------------------------------------------------------------------------------------
 \subsection{Call Stack}
-\begin{wrapfigure}{r}{.5\textwidth}
-\vspace*{-1.2cm}
-\begin{minipage}{.96\linewidth}
+\begin{figure}
+\centerline{\begin{minipage}{.48\linewidth}
 \lstinputlisting[frame=single]{Code/CallStack/head.prepped.f90}
 \end{minipage}
+}
 \caption{Example for tracing subroutine calls}\label{fig:CallStack} 
-\end{wrapfigure} 
+\end{figure} 
 In the output shown so far, the listing of the line numbers and the 
 nesting of the 
 respective XML elements provide some means of navigating the 
