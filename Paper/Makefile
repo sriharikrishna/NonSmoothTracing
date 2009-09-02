@@ -60,7 +60,7 @@ Code/CallStack/oad_tr_001.xml Code/CallStack/oad_tr_002.xml :
 	cd Code/CallStack && $(MAKE) 
 
 %.fxml: %.xml
-	xmlformat.pl $< > $@
+	./xmlformat.pl $< > $@
 
 $(TARGET).aux :  extraReqs $(TARGET).tex $(TARGET).bib 
 # ensure we make a .aux file
