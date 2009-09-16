@@ -6,7 +6,8 @@ run: driver
 	./driver
 driver: $(addsuffix .o, $(RTSUPP)) driver.o head.prepped.xb.x2w.w2f.pp.o
 	${F90C} -o $@ $^
-head.prepped.xb.x2w.w2f.pp.f $(addsuffix .f90, $(RTSUPP)) : head.prepped.f90
+head.prepped.xb.x2w.w2f.pp.f $(addsuffix .f90, $(RTSUPP)) : toolChain
+toolChain : head.prepped.f90
 	openad -c -m t $<
 %.o : %.f90
 	${F90C} -o $@ -c $< 
@@ -15,4 +16,4 @@ head.prepped.xb.x2w.w2f.pp.f $(addsuffix .f90, $(RTSUPP)) : head.prepped.f90
 clean: 
 	rm -f ad_template* OAD_* w2f__*  iaddr* 
 	rm -f head.prepped.xb* *.B *.xaif *.o *.mod oad_tr_* driver *~ 
-.PHONY: run clean
+.PHONY: run clean toolChain
