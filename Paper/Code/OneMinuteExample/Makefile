@@ -12,5 +12,5 @@ head.prepped.pre.xb.x2w.w2f.post.f90 $(addsuffix .f90, $(RTSUPP)) : head.prepped
 	${F90C} -o $@ -c $< 
 clean: 
 	rm -f ad_template* OAD_* w2f__*  iaddr* 
-	rm -f head.prepped.xb* *.B *.xaif *.o *.mod oad_tr_* driver *~ 
+	rm -f head.prepped.pre* *.B *.xaif *.o *.mod oad_tr_* driver *~ 
 .PHONY: run clean
