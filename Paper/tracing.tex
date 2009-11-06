@@ -228,7 +228,7 @@ a straightforward case like this by calling %\\[1ex]
 \hspace*{.3cm}\lstinline{openad -c -m t head.prepped.f90}\\[1ex]
 %it produces some progress output like the one shown in \reffig{fig:oneMinuteStatusOutput}.
 The resulting Fortran output is contained in a file called\\[1ex]
-\hspace*{.3cm}\lstinline{head.prepped.xb.x2w.w2f.pp.f}\\[1ex] 
+\hspace*{.3cm}\lstinline{head.prepped.pre.xb.x2w.w2f.post.f}\\[1ex] 
 and its contents is shown in \reffig{fig:OneMinuteTransformed}.  
 In the transformed Fortran one finds two versions of the code: one is the original 
 on line 28, and one is augmented on
@@ -268,8 +268,9 @@ is shown in \reffig{fig:OneMinuteXMLOutput}.
 \caption{Contents of a \lstinline{makefile} to compile and link the example}\label{fig:OneMinuteMake}.
 \end{figure}
 \begin{figure}
-\lstinputlisting[frame=single]{Code/OneMinuteExample/head.prepped.xb.x2w.w2f.pp.f}
-\caption{Transformed code (fixed format) from input shown in \reffig{fig:OneMinute} (left)}\label{fig:OneMinuteTransformed}
+\lstset{language=[90]Fortran}
+\lstinputlisting[frame=single]{Code/OneMinuteExample/head.prepped.pre.xb.x2w.w2f.post.f90}
+\caption{Transformed code from input shown in \reffig{fig:OneMinute} (left)}\label{fig:OneMinuteTransformed}
 \end{figure}
 \begin{figure}
 \begin{minipage}{.49\textwidth}
