@@ -36,6 +36,8 @@ then
   if [ $? -eq 0 ]
   then 
     rm  versionInfoOpenAD.txt.new
+  else 
+    mv versionInfoOpenAD.txt.new versionInfoOpenAD.txt
   fi
 else
   mv versionInfoOpenAD.txt.new versionInfoOpenAD.txt
