@@ -204,9 +204,9 @@ We assume a simple routine, see \reffig{fig:OneMinute} (left), computing $y=f(x)
 \lstinputlisting[frame=single]{Code/OneMinuteExample/head.f90}
 \end{minipage}
 \begin{minipage}[t]{.48\linewidth}
-\lstinputlisting[frame=single]{Code/OneMinuteExample/head.prepped.f90}
+\lstinputlisting[basicstyle=,frame=single,language=Fortran,firstline=3,firstnumber=3]{Code/OneMinuteExample/head.prepped.pre.f90}
 \end{minipage}
-\caption{Simple example code (left), prepared for tracing (right)}\label{fig:OneMinute}
+\caption{Simple example code (left), prepared for tracing and preprocessed (right)}\label{fig:OneMinute}
 \end{figure}
 We need to prepare the code for the activity analysis by specifying the independent variables
 (here \lstinline{x}) and the dependent variables 
@@ -332,7 +332,7 @@ The source code for the transformation can be found in \lstinline{inc} and \lsti
 \hspace*{.3cm}\lstinline{$OPENADROOT/xaifBooster/algorithms/TraceDiff} \\[1ex]%$
 with the top level  driver routine being in \lstinline{driver/oadDriver.cpp}. 
 The transformation options associated with the tracing facility are as follows.
-{\scriptsize \verbatiminput{tracingAlgOpts.txt}}
+{\scriptsize \verbatiminput{tracingAlgOpts.ftxt}}
 As shown in \reffig{fig:OneMinuteTransformed}, the 
 transformation generates two versions of the input code on a per subroutine basis. 
 The first one is essentially the input containing only changes related to the 
@@ -467,12 +467,6 @@ definition.\\
 if it is used in an address computation that impacts 
 the  computation of active values.\\
 Here we use the term  ``address computation'' not only  to cover the typical notion of 
-computing addresses in the program's data segment but also to compute 
-addresses in the programs text segment determining the next instruction. 
-The instruction address computation is already illustrated by \reffig{fig:missedThis}.
-An example for the former kind of address computation is given in 
-\reffig{fig:addressComp}, where an active value in variable a is used to 
-determine an index \lstinline{i} into a lookup table t,
 \begin{wrapfigure}{r}{.5\textwidth}
 \begin{minipage}{.95\linewidth}
 \begin{lstlisting}[frame=single]
@@ -482,6 +476,12 @@ a = a * t(i)
 \end{minipage}
 \caption{An address computation into a lookup table impacting the subsequent computation}\label{fig:addressComp} 
 \end{wrapfigure}
+computing addresses in the program's data segment but also to compute 
+addresses in the programs text segment determining the next instruction. 
+The instruction address computation is already illustrated by \reffig{fig:missedThis}.
+An example for the former kind of address computation is given in 
+\reffig{fig:addressComp}, where an active value in variable a is used to 
+determine an index \lstinline{i} into a lookup table t,
 which then is used in 
 subsequent active computations.
 Unfortunately the definition of ``indirectly useful'' cannot be readily translated  into a data flow analysis and requires research that goes beyond the scope of this paper.   
@@ -594,10 +594,10 @@ Here we illustrate the use of the tracing facility on three small examples.
 \subsection{Control Flow}
 \begin{figure}
 \begin{minipage}{.48\linewidth}
-\lstinputlisting[frame=single]{Code/ControlFlow/head.prepped.f90}
+\lstinputlisting[basicstyle=,frame=single,language=Fortran,firstline=3,firstnumber=3]{Code/ControlFlow/head.prepped.pre.f90}
 \end{minipage}
 \begin{minipage}{.48\linewidth}
-\lstinputlisting[frame=single]{Code/ArrayIndex/head.prepped.f90}
+\lstinputlisting[basicstyle=,frame=single,language=Fortran,firstline=3,firstnumber=3]{Code/ArrayIndex/head.prepped.pre.f90}
 \end{minipage}
 \caption{Example for control flow decisions depending on active variables (left); example for tracing array indices in select intrinsics (right)}\label{fig:ControlFlowArrayIndex} 
 \end{figure} 
@@ -656,7 +656,7 @@ This allows us to easily pinpoint changes for certain elements in large arrays.
 \subsection{Call Stack}
 \begin{figure}
 \centerline{\begin{minipage}{.48\linewidth}
-\lstinputlisting[frame=single]{Code/CallStack/head.prepped.f90}
+\lstinputlisting[basicstyle=,frame=single,language=Fortran,firstline=3,firstnumber=3]{Code/CallStack/head.prepped.pre.f90}
 \end{minipage}
 }
 \caption{Example for tracing subroutine calls}\label{fig:CallStack} 

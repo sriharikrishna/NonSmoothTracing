@@ -6,7 +6,7 @@ FIG2PDF=$(FIGFILES:.fig=.pdf)
 EXTRAREQS= \
 versionInfo.txt \
 $(FIG2PDF) \
-tracingAlgOpts.txt \
+tracingAlgOpts.ftxt \
 oneMinuteStatusOutput.txt \
 Code/OneMinuteExample/oad_tr_001.xml \
 Code/OneMinuteExample/oad_tr_002.xml \
@@ -30,6 +30,8 @@ else
 FORCE=FORCE
 endif
 
+PORTRAIT_ORIENT_BOX_WIDTH=86
+
 $(TARGET).pdf : $(TARGET).aux $(TARGET).blg $(TARGET).bbl
 # run it twice
 	pdflatex $(TARGET)
@@ -42,7 +44,10 @@ versionInfo.txt versionInfoOpenAD.txt : $(FORCE)
 	./createVersionInfo.sh
 
 tracingAlgOpts.txt : $(FORCE)
-	./createOptionsOuput.sh 
+	${OPENADROOT}/xaifBooster/algorithms/TraceDiff/driver/oadDriver | grep -v "caught exception" | grep -v "=== reset log" | grep -v "xaifBooster/algorithms/TraceDiff/driver" > ${THISDIR}/$@
+
+tracingAlgOpts.ftxt : tracingAlgOpts.txt
+	cat $< | ${THISDIR}/fold.py -p '                 ' -w $(PORTRAIT_ORIENT_BOX_WIDTH) > ${THISDIR}/$@
 
 oneMinuteStatusOutput.txt : $(FORCE)
 	./createOneMinuteOutput.sh
